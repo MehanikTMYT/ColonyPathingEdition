@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static net.minecraft.world.level.Level.TICKS_PER_DAY;
+import static com.arxyt.colonypathingedition.core.costants.AdditionalContants.TICKS_PER_DAY;
 
 
 @Mixin(value = RegisteredStructureManager.class, remap = false)
@@ -23,8 +23,8 @@ public class RegisteredStructureManagerMixin {
     @Inject(method = "onColonyTick",at = @At("HEAD"),remap = false)
     void onFieldDateChange(IColony colony, CallbackInfo ci){
         Level colonyWorld = colony.getWorld();
-        if(colonyWorld.getDayTime() / TICKS_PER_DAY != trueDate){
-            trueDate = (int)(colonyWorld.getDayTime() / TICKS_PER_DAY);
+        if(colonyWorld.getDefaultClockTime() / TICKS_PER_DAY != trueDate){
+            trueDate = (int)(colonyWorld.getDefaultClockTime() / TICKS_PER_DAY);
             ((RegisteredStructureManager)(Object)this).getBuildingExtensions(f -> f.getBuildingExtensionType().equals(BuildingExtensionRegistries.farmField.get()))
                     .stream()
                     .map(m -> (FarmFieldExtra) m)
@@ -41,7 +41,7 @@ public class RegisteredStructureManagerMixin {
     @Inject(method = "read", at = @At("TAIL"),remap = false)
     public void additionalDeserializeNBT(HolderLookup.Provider provider, CompoundTag compound, CallbackInfo ci) {
         if (compound.contains("trueDate")) {
-            trueDate = compound.getInt("trueDate");
+            trueDate = compound.getIntOr("trueDate", trueDate);
         }
     }
 }

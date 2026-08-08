@@ -8,7 +8,7 @@ import com.minecolonies.core.entity.citizen.EntityCitizen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionResult;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -28,7 +28,7 @@ public class ReadMindEvent {
     public void onEntityInteract(final PlayerInteractEvent.EntityInteract event) {
         if (event.isCanceled()) return;
         if (!PathingConfig.ALLOW_READ_MIND.get()) return;
-        if (event.getItemStack().getItem() != BuiltInRegistries.ITEM.get(ResourceLocation.parse(READ_MIND_ITEM.get()))) return;
+        if (event.getItemStack().getItem() != BuiltInRegistries.ITEM.getValue(Identifier.parse(READ_MIND_ITEM.get()))) return;
         if (!(event.getTarget() instanceof EntityCitizen citizen)) return;
         if (event.getEntity().isShiftKeyDown()) return;
         event.setCanceled(true);

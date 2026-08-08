@@ -44,7 +44,7 @@ public class ColonyPathingEdition {
         modBus.addListener(ColonyPathingEdition::preInit);
         modBus.addListener(CPENetwork::register);
         // 客户端初始化
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             NeoForge.EVENT_BUS.register(UpdateManager.class);
         }
         NeoForge.EVENT_BUS.register(SpecialSeedManager.class);

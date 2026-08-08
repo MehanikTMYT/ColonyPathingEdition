@@ -48,7 +48,7 @@ public abstract class LivingBuildingModuleMixin extends AbstractAssignedCitizenM
     @Inject(method = "deserializeNBT", at = @At("HEAD"), remap = false)
     public void deserializeAdditionalNBT (HolderLookup.Provider provider, CompoundTag compound, CallbackInfo ci){
         if(compound.contains("bed_size")) {
-            bedCount = compound.getInt("bed_size");
+            bedCount = compound.getIntOr("bed_size", building.getBuildingLevel());
         }
         else{
             bedCount = building.getBuildingLevel();

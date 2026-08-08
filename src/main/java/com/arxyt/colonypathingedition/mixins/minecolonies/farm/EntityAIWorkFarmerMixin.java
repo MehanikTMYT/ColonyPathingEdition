@@ -454,7 +454,7 @@ public abstract class EntityAIWorkFarmerMixin extends AbstractEntityAICrafting<J
         if(state.getBlock() instanceof BushBlock || state.getBlock() instanceof CropBlock){
             BlockHitResult hitResult = new BlockHitResult(Vec3.atCenterOf(pos.above()), Direction.UP, pos.above(), false);
             FakePlayer fakePlayer = getFakePlayer();
-            ItemStack seedStack = state.getCloneItemStack(hitResult, world, pos.above(),fakePlayer);
+            ItemStack seedStack = state.getCloneItemStack(world, pos.above(), true);
             if(farmField.getSeed().getItem() == seedStack.getItem()){
                 InteractionResult result = state.useWithoutItem(world, fakePlayer, hitResult);
                 return result.consumesAction();
@@ -560,7 +560,7 @@ public abstract class EntityAIWorkFarmerMixin extends AbstractEntityAICrafting<J
                     || (world.getBlockState(position.above()).getBlock() instanceof BushBlock)
                     || (world.getBlockState(position.above()).getBlock() instanceof BlockScarecrow)
                     || (blockState.getBlock() == farmland)
-                    || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmBlock))
+                    || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
                     || (world.getBlockState(position.above()).getBlock() instanceof MinecoloniesCropBlock)
             )
             {
@@ -578,7 +578,7 @@ public abstract class EntityAIWorkFarmerMixin extends AbstractEntityAICrafting<J
                     || (world.getBlockState(position.above()).getBlock() instanceof CropBlock)
                     || (world.getBlockState(position.above()).getBlock() instanceof BushBlock)
                     || (world.getBlockState(position.above()).getBlock() instanceof BlockScarecrow)
-                    || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmBlock))
+                    || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
                     || (world.getBlockState(position.above()).getBlock() instanceof MinecoloniesCropBlock)
             )
             {
@@ -599,7 +599,7 @@ public abstract class EntityAIWorkFarmerMixin extends AbstractEntityAICrafting<J
                 || (world.getBlockState(position.above()).getBlock() instanceof CropBlock)
                 || (world.getBlockState(position.above()).getBlock() instanceof BushBlock)
                 || (world.getBlockState(position.above()).getBlock() instanceof BlockScarecrow)
-                || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmBlock))
+                || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
                 || (world.getBlockState(position.above()).getBlock() instanceof MinecoloniesCropBlock)
         )
         {
@@ -628,7 +628,7 @@ public abstract class EntityAIWorkFarmerMixin extends AbstractEntityAICrafting<J
                 getInventory().getStackInSlot(InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(getInventory(), ModEquipmentTypes.hoe.get(), TOOL_LEVEL_WOOD_OR_GOLD, building.getMaxEquipmentLevel())),
                 blockHitResult);
         final BlockState toolModifiedState = blockState.getToolModifiedState(useOnContext, ItemAbilities.HOE_TILL, true);
-        if (toolModifiedState == null || !(toolModifiedState.getBlock() instanceof FarmBlock))
+        if (toolModifiedState == null || !(toolModifiedState.getBlock() instanceof FarmlandBlock))
         {
             return null;
         }
@@ -706,7 +706,7 @@ public abstract class EntityAIWorkFarmerMixin extends AbstractEntityAICrafting<J
                     getInventory().getStackInSlot(InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(getInventory(), ModEquipmentTypes.hoe.get(), TOOL_LEVEL_WOOD_OR_GOLD, building.getMaxEquipmentLevel())),
                     new BlockHitResult(pos.getCenter(), Direction.UP, pos, false));
             final BlockState toolModifiedState = blockState.getToolModifiedState(useOnContext, ItemAbilities.HOE_TILL, true);
-            if(toolModifiedState != null && toolModifiedState.getBlock() instanceof FarmBlock){
+            if(toolModifiedState != null && toolModifiedState.getBlock() instanceof FarmlandBlock){
                 world.setBlockAndUpdate(pos, toolModifiedState);
                 return true;
             }
@@ -754,7 +754,7 @@ public abstract class EntityAIWorkFarmerMixin extends AbstractEntityAICrafting<J
         }
         BlockState state = world.getBlockState(position.above());
         if(state.getBlock() instanceof CropBlock
-                || state.getBlock() instanceof FungusBlock
+                || state.getBlock() instanceof NetherFungusBlock
                 || state.getBlock() instanceof BushBlock
                 || state.getBlock() instanceof StemBlock
                 || belowState.getBlock() instanceof BlockScarecrow
@@ -892,7 +892,7 @@ public abstract class EntityAIWorkFarmerMixin extends AbstractEntityAICrafting<J
         BlockState surfaceState = getWorld().getBlockState(position.above());
         Block surfaceBlock = surfaceState.getBlock();
         if (surfaceBlock instanceof BushBlock){
-            if (surfaceBlock instanceof FungusBlock || surfaceBlock instanceof MushroomBlock){
+            if (surfaceBlock instanceof NetherFungusBlock || surfaceBlock instanceof MushroomBlock){
                 return null;
             }
             if (surfaceBlock instanceof FlowerBlock || surfaceBlock instanceof TallGrassBlock || surfaceBlock instanceof SaplingBlock){

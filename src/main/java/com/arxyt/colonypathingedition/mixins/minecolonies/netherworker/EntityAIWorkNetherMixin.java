@@ -27,9 +27,12 @@ import com.minecolonies.core.entity.ai.workers.production.EntityAIWorkNether;
 import com.minecolonies.core.items.ItemAdventureToken;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.MagmaCube;
@@ -381,7 +384,7 @@ public abstract class EntityAIWorkNetherMixin extends AbstractEntityAICrafting<J
 
                         //Set up the mob to do battle with
                         EntityType<?> mobType = component.entityType();
-                        LivingEntity mob = (LivingEntity) mobType.create(world);
+                        LivingEntity mob = (LivingEntity) mobType.create(world, EntitySpawnReason.COMMAND);
                         assert mob != null;
                         float mobHealth = mob.getHealth();
 
@@ -400,9 +403,9 @@ public abstract class EntityAIWorkNetherMixin extends AbstractEntityAICrafting<J
                             ItemStack sword = worker.getItemBySlot(EquipmentSlot.MAINHAND);
                             if (!sword.isEmpty())
                             {
-                                if (sword.getItem() instanceof SwordItem swordItem)
+                                if (ItemStackUtils.isSword(sword))
                                 {
-                                    damageToDo += swordItem.getDamage(sword);
+                                    damageToDo += (float) ItemStackUtils.getItemStackAttributeValue(sword, EquipmentSlot.MAINHAND, Attributes.ATTACK_DAMAGE);
                                 }
                                 else
                                 {
@@ -416,7 +419,7 @@ public abstract class EntityAIWorkNetherMixin extends AbstractEntityAICrafting<J
                             mobHealth -= damageToDo;
 
                             // Get hit by the mob
-                            if (!worker.hurt(source, incomingDamage))
+                            if (!worker.hurtServer((ServerLevel) worker.level(), source, incomingDamage))
                             {
                                 //Shouldn't get here, but if we do we can force the damage.
                                 incomingDamage = worker.calculateDamageAfterAbsorbs(source, incomingDamage);
@@ -458,7 +461,7 @@ public abstract class EntityAIWorkNetherMixin extends AbstractEntityAICrafting<J
                             {
                                 // Generate loot for this mob, with all the right modifiers
                                 LootParams context = this.getLootContext();
-                                LootTable loot = this.world.getServer().reloadableRegistries().getLootTable(mob.getLootTable());
+                                LootTable loot = this.world.getServer().reloadableRegistries().getLootTable(mob.getLootTable().orElseThrow());
                                 List<ItemStack> mobLoot = loot.getRandomItems(context);
                                 if(mob instanceof MagmaCube){
                                     mobLoot.add(new ItemStack(Items.MAGMA_CREAM,1));
@@ -488,14 +491,14 @@ public abstract class EntityAIWorkNetherMixin extends AbstractEntityAICrafting<J
                         final Block block = bi.getBlock();
 
                         ItemStack tool = findTool(block.defaultBlockState(), worker.blockPosition());
-                        if (tool.getItem() instanceof TieredItem)
+                        if (tool.has(DataComponents.TOOL))
                         {
                             worker.setItemSlot(EquipmentSlot.MAINHAND, tool);
 
                             for (int i = 0; i < currStack.getCount() && !tool.isEmpty(); i++)
                             {
                                 LootParams context = this.getLootContext();
-                                LootTable loot = this.world.getServer().reloadableRegistries().getLootTable(block.getLootTable());
+                                LootTable loot = this.world.getServer().reloadableRegistries().getLootTable(block.getLootTable().orElseThrow());
                                 List<ItemStack> mobLoot = loot.getRandomItems(context);
 
                                 job.addProcessedResultsList(mobLoot);

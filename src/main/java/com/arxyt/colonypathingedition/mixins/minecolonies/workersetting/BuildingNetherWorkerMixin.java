@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static com.minecolonies.core.colony.buildings.workerbuildings.BuildingNetherWorker.getMaxPerPeriod;
-import static net.minecraft.world.level.Level.TICKS_PER_DAY;
+import static com.arxyt.colonypathingedition.core.costants.AdditionalContants.TICKS_PER_DAY;
 
 @Mixin(value = BuildingNetherWorker.class, remap = false)
 public abstract class BuildingNetherWorkerMixin extends AbstractBuilding {
@@ -47,11 +47,11 @@ public abstract class BuildingNetherWorkerMixin extends AbstractBuilding {
     public boolean isReadyForTrip() {
         //前面这一段是用来检测昼夜节律的
         if (snapTime == 0) {
-            snapTime = colony.getWorld().getDayTime();
+            snapTime = colony.getWorld().getDefaultClockTime();
         }
-        if (Math.abs(colony.getWorld().getDayTime() - snapTime) >= TICKS_PER_DAY) {
+        if (Math.abs(colony.getWorld().getDefaultClockTime() - snapTime) >= TICKS_PER_DAY) {
             this.currentTrips = 0;
-            snapTime = colony.getWorld().getDayTime();
+            snapTime = colony.getWorld().getDefaultClockTime();
             this.currentPeriodDay = colony.getDay();
         }
         //此处为正常逻辑

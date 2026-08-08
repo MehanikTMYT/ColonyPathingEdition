@@ -8,8 +8,7 @@ import com.minecolonies.core.datalistener.DiseasesListener;
 import com.minecolonies.core.datalistener.model.Disease;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenDiseaseHandler;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -66,19 +65,19 @@ public abstract class CitizenDiseaseHandlerMixin implements ICitizenDiseaseHandl
     @Overwrite(remap = false)
     public void read(final CompoundTag compound)
     {
-        if (!compound.contains(TAG_DISEASE, Tag.TAG_COMPOUND))
+        if (compound.getCompound(TAG_DISEASE).isEmpty())
         {
             return;
         }
 
-        CompoundTag diseaseTag = compound.getCompound(TAG_DISEASE);
+        CompoundTag diseaseTag = compound.getCompoundOrEmpty(TAG_DISEASE);
         if (diseaseTag.contains(TAG_DISEASE_ID))
         {
-            this.disease = DiseasesListener.getDisease(ResourceLocation.parse(diseaseTag.getString(TAG_DISEASE_ID)));
+            this.disease = DiseasesListener.getDisease(Identifier.parse(diseaseTag.getStringOr(TAG_DISEASE_ID, "")));
         }
 
-        this.immunityTicks = diseaseTag.getInt(TAG_IMMUNITY);
-        this.sickTime = diseaseTag.getInt(SICK_TIME);
+        this.immunityTicks = diseaseTag.getIntOr(TAG_IMMUNITY, 0);
+        this.sickTime = diseaseTag.getIntOr(SICK_TIME, 0);
     }
 
     /**

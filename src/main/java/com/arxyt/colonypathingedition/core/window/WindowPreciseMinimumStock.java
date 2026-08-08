@@ -17,7 +17,7 @@ import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.network.messages.server.colony.building.AddMinimumStockToBuildingModuleMessage;
 import com.minecolonies.core.network.messages.server.colony.building.RemoveMinimumStockFromBuildingModuleMessage;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,7 +51,7 @@ public class WindowPreciseMinimumStock extends AbstractModuleWindow<IMinimumStoc
      */
     public WindowPreciseMinimumStock(final IMinimumStockModuleView moduleView)
     {
-        super(moduleView, ResourceLocation.parse(ColonyPathingEdition.MODID + RESOURCE_STRING));
+        super(moduleView, Identifier.parse(ColonyPathingEdition.MODID + RESOURCE_STRING));
 
         resourceList = this.window.findPaneOfTypeByID("resourcesstock", ScrollingList.class);
         this.moduleView = moduleView;
@@ -61,7 +61,7 @@ public class WindowPreciseMinimumStock extends AbstractModuleWindow<IMinimumStoc
         {
             final ButtonImage button = findPaneOfTypeByID(STOCK_ADD, ButtonImage.class);
             button.setText(Component.translatableEscape(LABEL_LIMIT_REACHED));
-            button.setImage(ResourceLocation.parse(Constants.MOD_ID + ":textures/gui/builderhut/builder_button_medium_disabled.png"));
+            button.setImage(Identifier.parse(Constants.MOD_ID + ":textures/gui/builderhut/builder_button_medium_disabled.png"));
         }
 
         registerButton(STOCK_REMOVE, this::removeStock);

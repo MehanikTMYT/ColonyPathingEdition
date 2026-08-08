@@ -28,7 +28,7 @@ import com.minecolonies.core.entity.ai.workers.AbstractEntityAIUsesFurnace;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
@@ -76,7 +76,7 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
      * Cooking icon
      */
     private final static VisibleCitizenStatus COOK =
-            new VisibleCitizenStatus(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/cook.png"), "com.minecolonies.gui.visiblestatus.cook");
+            new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/cook.png"), "com.minecolonies.gui.visiblestatus.cook");
 
     /**
      * Initial all the citizen may should be served
@@ -280,7 +280,7 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
             worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(POOR_RESTAURANT_INTERACTION), ChatPriority.BLOCKING));
         }
 
-        String foodName = worker.getInventoryCitizen().getStackInSlot(foodSlot).getDescriptionId();
+        Component foodName = worker.getInventoryCitizen().getStackInSlot(foodSlot).getItemName();
         int qty = (int) (Math.max(1.0, (FULL_SATURATION - citizen.getCitizenData().getSaturation()) / FoodUtils.getFoodValue(worker.getInventoryCitizen().getStackInSlot(foodSlot), citizen)));
         if (InventoryUtils.transferXOfItemStackIntoNextFreeSlotInItemHandler(worker.getInventoryCitizen(), foodSlot, qty, citizenData.getInventory())) {
             ((BuildingCookExtra)building).deleteCustomer(citizen.getCivilianID());

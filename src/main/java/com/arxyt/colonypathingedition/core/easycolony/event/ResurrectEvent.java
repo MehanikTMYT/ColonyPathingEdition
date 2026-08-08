@@ -18,7 +18,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -57,7 +57,7 @@ public class ResurrectEvent {
 
         if (entity == null) return;
         if (!event.getEntity().isShiftKeyDown()) return;
-        if (stack.getItem() != BuiltInRegistries.ITEM.get(ResourceLocation.parse(RESURRECT_ITEM.get()))) return;
+        if (stack.getItem() != BuiltInRegistries.ITEM.getValue(Identifier.parse(RESURRECT_ITEM.get()))) return;
         if (!(entity instanceof AbstractTileEntityGrave) && !(entity instanceof AbstractTileEntityNamedGrave)) return;
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.CONSUME);
@@ -99,7 +99,7 @@ public class ResurrectEvent {
             return;
         }
         if (gData.getCitizenDataNBT() == null) return;
-        if (level.random.nextDouble() <= getResurrectChance(colony)) {
+        if (level.getRandom().nextDouble() <= getResurrectChance(colony)) {
             final ICitizenData citizenData = colony.getCitizenManager().resurrectCivilianData(gData.getCitizenDataNBT(), true, level, pos);
             for(int i = 0; i < citizenData.getInventory().getSlots(); i++) {
                 citizenData.getInventory().shrinkInventoryItem(i);
@@ -108,9 +108,9 @@ public class ResurrectEvent {
             level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
             player.playSound(SoundEvents.TOTEM_USE, 1.0f, 1.0f);
             level.broadcastEntityEvent(player, (byte) 35);
-            msg = Component.translatable(AdditionalContants.RESURRECT + ".success" + level.random.nextInt(4), gData.getCitizenName()).withStyle(ChatFormatting.GREEN);
+            msg = Component.translatable(AdditionalContants.RESURRECT + ".success" + level.getRandom().nextInt(4), gData.getCitizenName()).withStyle(ChatFormatting.GREEN);
         } else {
-            msg = Component.translatable(AdditionalContants.RESURRECT + ".fail" + level.random.nextInt(4), gData.getCitizenName()).withStyle(ChatFormatting.GRAY);
+            msg = Component.translatable(AdditionalContants.RESURRECT + ".fail" + level.getRandom().nextInt(4), gData.getCitizenName()).withStyle(ChatFormatting.GRAY);
         }
         player.sendSystemMessage(msg);
     }

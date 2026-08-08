@@ -53,7 +53,7 @@ public class LargeBottleCauldronInteractions {
         if (result.consumesAction()) {
             event.setCanceled(true);
             event.setCancellationResult(
-                    InteractionResult.sidedSuccess(level.isClientSide)
+                    (level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME)
             );
         }
     }
@@ -66,7 +66,7 @@ public class LargeBottleCauldronInteractions {
             Player player,
             ItemStack stack
     ) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             int waterLevel = state.getValue(LayeredCauldronBlock.LEVEL);
             ItemStack filled = new ItemStack(ModItems.large_water_bottle);
 
@@ -87,7 +87,7 @@ public class LargeBottleCauldronInteractions {
             }
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return (level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME);
     }
 
 
@@ -97,7 +97,7 @@ public class LargeBottleCauldronInteractions {
             Player player,
             ItemStack stack
     ) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             ItemStack emptyed = new ItemStack(ModItems.large_empty_bottle);
 
             if(!player.isCreative()) {
@@ -113,7 +113,7 @@ public class LargeBottleCauldronInteractions {
                     3
             );
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return (level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME);
     }
 
     /* 把水倒进空炼药锅 */
@@ -124,7 +124,7 @@ public class LargeBottleCauldronInteractions {
             Player player,
             ItemStack stack
     ) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             int waterLevel = state.getValue(LayeredCauldronBlock.LEVEL);
             if(waterLevel >= 3){
                 return InteractionResult.PASS;
@@ -157,6 +157,6 @@ public class LargeBottleCauldronInteractions {
             }
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return (level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME);
     }
 }

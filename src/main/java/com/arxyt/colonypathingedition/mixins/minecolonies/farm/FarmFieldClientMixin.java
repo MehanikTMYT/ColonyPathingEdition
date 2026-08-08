@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.minecraft.world.level.Level.TICKS_PER_DAY;
+import static com.arxyt.colonypathingedition.core.costants.AdditionalContants.TICKS_PER_DAY;
 
 
 @Mixin(value = FarmField.class, remap = false)
@@ -41,8 +41,8 @@ public abstract class FarmFieldClientMixin extends AbstractBuildingExtension {
             farmField.setSeasonSeed(1,seed);
         }
         Level world = Minecraft.getInstance().level;
-        if(world != null && world.getDayTime() != 0){
-            final int nowDay = (int)(world.getDayTime() / TICKS_PER_DAY);
+        if(world != null && world.getDefaultClockTime() != 0){
+            final int nowDay = (int)(world.getDefaultClockTime() / TICKS_PER_DAY);
             if(nowDay != farmField.getDate()) {
                 farmField.advanceDay(nowDay);
             }

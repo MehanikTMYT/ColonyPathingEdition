@@ -152,7 +152,7 @@ public abstract class FarmFieldMixin extends AbstractBuildingExtension implement
         // 种子
         CompoundTag seedTag = new CompoundTag();
         for (Map.Entry<Integer, ItemStack> e : seasonalSeeds.entrySet()) {
-            seedTag.put(String.valueOf(e.getKey()), e.getValue().saveOptional(provider));
+            seedTag.put(String.valueOf(e.getKey()), Utils.saveOptionalItemStack(provider, e.getValue()));
         }
         tag.put("SeasonalSeeds", seedTag);
         tag.putInt("Date", date);
@@ -162,32 +162,32 @@ public abstract class FarmFieldMixin extends AbstractBuildingExtension implement
     @Unique
     public void loadSeasonData(HolderLookup.Provider provider, @NotNull CompoundTag tag) {
         if (tag.contains("SeasonCount")) {
-            seasonCount = Math.max(1, Math.min(4, tag.getInt("SeasonCount")));
+            seasonCount = Math.max(1, Math.min(4, tag.getIntOr("SeasonCount", seasonCount)));
         }
         if (tag.contains("CurrentSeason")) {
-            currentSeason = Math.max(1, Math.min(seasonCount, tag.getInt("CurrentSeason")));
+            currentSeason = Math.max(1, Math.min(seasonCount, tag.getIntOr("CurrentSeason", currentSeason)));
         }
         if (tag.contains("CurrentDay")) {
-            currentDay = Math.max(1, tag.getInt("CurrentDay"));
+            currentDay = Math.max(1, tag.getIntOr("CurrentDay", currentDay));
         }
 
         seasonDurations.clear();
         if (tag.contains("SeasonDurations")) {
-            CompoundTag durationTag = tag.getCompound("SeasonDurations");
-            for (String key : durationTag.getAllKeys()) {
-                seasonDurations.put(Integer.parseInt(key), durationTag.getInt(key));
+            CompoundTag durationTag = tag.getCompoundOrEmpty("SeasonDurations");
+            for (String key : durationTag.keySet()) {
+                seasonDurations.put(Integer.parseInt(key), durationTag.getIntOr(key, 0));
             }
         }
 
         seasonalSeeds.clear();
         if (tag.contains("SeasonalSeeds")) {
-            CompoundTag seedTag = tag.getCompound("SeasonalSeeds");
-            for (String key : seedTag.getAllKeys()) {
-                seasonalSeeds.put(Integer.parseInt(key), ItemStack.parseOptional(provider, seedTag.getCompound(key)));
+            CompoundTag seedTag = tag.getCompoundOrEmpty("SeasonalSeeds");
+            for (String key : seedTag.keySet()) {
+                seasonalSeeds.put(Integer.parseInt(key), Utils.parseOptionalItemStack(provider, seedTag.getCompoundOrEmpty(key)));
             }
         }
         if (tag.contains("Date")) {
-            date = tag.getInt("Date");
+            date = tag.getIntOr("Date", date);
         }
 
         // 自动修正天数范围

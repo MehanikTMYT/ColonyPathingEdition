@@ -7,7 +7,6 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingLumberjack
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -55,18 +54,18 @@ public abstract class BuildingLumberjackMixin implements IBuilding, BuildingLumb
 
     @Inject(method = "deserializeNBT(Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/nbt/CompoundTag;)V",at=@At("RETURN"),remap = false)
     private void deserializeNBTAddition (HolderLookup.Provider provider, CompoundTag compound, CallbackInfo ci){
-        if(compound.contains("last_tree", Tag.TAG_COMPOUND)){
-            CompoundTag treeTag = compound.getCompound("last_tree");
-            int x = treeTag.getInt("x");
-            int y = treeTag.getInt("y");
-            int z = treeTag.getInt("z");
+        if(compound.getCompound("last_tree").isPresent()){
+            CompoundTag treeTag = compound.getCompoundOrEmpty("last_tree");
+            int x = treeTag.getIntOr("x", 0);
+            int y = treeTag.getIntOr("y", 0);
+            int z = treeTag.getIntOr("z", 0);
             lastTree = new BlockPos(x, y, z);
         }
-        if(compound.contains("this_tree", Tag.TAG_COMPOUND)){
-            CompoundTag treeTag = compound.getCompound("this_tree");
-            int x = treeTag.getInt("x");
-            int y = treeTag.getInt("y");
-            int z = treeTag.getInt("z");
+        if(compound.getCompound("this_tree").isPresent()){
+            CompoundTag treeTag = compound.getCompoundOrEmpty("this_tree");
+            int x = treeTag.getIntOr("x", 0);
+            int y = treeTag.getIntOr("y", 0);
+            int z = treeTag.getIntOr("z", 0);
             thisTree = new BlockPos(x, y, z);
         }
     }

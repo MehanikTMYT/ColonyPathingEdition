@@ -35,12 +35,11 @@ import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -91,7 +90,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
      * Farming icon
      */
     private static final VisibleCitizenStatus FARMING_ICON =
-            new VisibleCitizenStatus(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/farmer.png"), "com.minecolonies.gui.visiblestatus.farmer");
+            new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/farmer.png"), "com.minecolonies.gui.visiblestatus.farmer");
 
     /**
      * Changed after finished harvesting in order to dump the inventory.
@@ -619,7 +618,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
                 return minecoloniesCrop.isMaxAge(surfaceState) ? position : null;
             }
             case BushBlock bushBlock -> {
-                if (surfaceBlock instanceof FungusBlock || surfaceBlock instanceof MushroomBlock) {
+                if (surfaceBlock instanceof NetherFungusBlock || surfaceBlock instanceof MushroomBlock) {
                     return null;
                 }
                 if (surfaceBlock instanceof FlowerBlock || surfaceBlock instanceof SaplingBlock) {
@@ -685,14 +684,14 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
         if(state.getBlock() instanceof BushBlock || state.getBlock() instanceof CropBlock){
             BlockHitResult hitResult = new BlockHitResult(Vec3.atCenterOf(pos.above()), Direction.UP, pos.above(), false);
             FakePlayer fakePlayer = getFakePlayer();
-            ItemStack seedStack = state.getCloneItemStack(hitResult, world, pos.above(),fakePlayer);
+            ItemStack seedStack = state.getCloneItemStack(world, pos.above(), true);
             if(farmField.getSeed().getItem() == seedStack.getItem()){
                 // equip tools on fakePlayer.
                 ItemStack mainHandStack = worker.getMainHandItem();
                 ItemStack stackCopy = mainHandStack.copy();
                 fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, stackCopy);
                 // right click event.
-                ItemInteractionResult result = state.useItemOn(stackCopy, world, fakePlayer, InteractionHand.MAIN_HAND, hitResult);
+                InteractionResult result = state.useItemOn(stackCopy, world, fakePlayer, InteractionHand.MAIN_HAND, hitResult);
                 if (result.consumesAction()) {
                     // additional drop manager.
                     final ItemStack tool = worker.getMainHandItem();
@@ -784,7 +783,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
                     || (world.getBlockState(position.above()).getBlock() instanceof BushBlock)
                     || (world.getBlockState(position.above()).getBlock() instanceof BlockScarecrow)
                     || (blockState.getBlock() == farmland)
-                    || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmBlock))
+                    || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
                     || (world.getBlockState(position.above()).getBlock() instanceof MinecoloniesCropBlock)
             )
             {
@@ -802,7 +801,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
                     || (world.getBlockState(position.above()).getBlock() instanceof CropBlock)
                     || (world.getBlockState(position.above()).getBlock() instanceof BushBlock)
                     || (world.getBlockState(position.above()).getBlock() instanceof BlockScarecrow)
-                    || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmBlock))
+                    || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
                     || (world.getBlockState(position.above()).getBlock() instanceof MinecoloniesCropBlock)
             )
             {
@@ -823,7 +822,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
                 || (world.getBlockState(position.above()).getBlock() instanceof CropBlock)
                 || (world.getBlockState(position.above()).getBlock() instanceof BushBlock)
                 || (world.getBlockState(position.above()).getBlock() instanceof BlockScarecrow)
-                || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmBlock))
+                || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
                 || (world.getBlockState(position.above()).getBlock() instanceof MinecoloniesCropBlock)
         )
         {
@@ -852,7 +851,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
                 getInventory().getStackInSlot(InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(getInventory(), ModEquipmentTypes.hoe.get(), TOOL_LEVEL_WOOD_OR_GOLD, building.getMaxEquipmentLevel())),
                 blockHitResult);
         final BlockState toolModifiedState = blockState.getToolModifiedState(useOnContext, ItemAbilities.HOE_TILL, true);
-        if (toolModifiedState == null || !(toolModifiedState.getBlock() instanceof FarmBlock))
+        if (toolModifiedState == null || !(toolModifiedState.getBlock() instanceof FarmlandBlock))
         {
             return null;
         }
@@ -965,7 +964,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
                     getInventory().getStackInSlot(InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(getInventory(), ModEquipmentTypes.hoe.get(), TOOL_LEVEL_WOOD_OR_GOLD, building.getMaxEquipmentLevel())),
                     new BlockHitResult(pos.getCenter(), Direction.UP, pos, false));
             final BlockState toolModifiedState = blockState.getToolModifiedState(useOnContext, ItemAbilities.HOE_TILL, true);
-            if(toolModifiedState != null && toolModifiedState.getBlock() instanceof FarmBlock){
+            if(toolModifiedState != null && toolModifiedState.getBlock() instanceof FarmlandBlock){
                 world.setBlockAndUpdate(pos, toolModifiedState);
                 return true;
             }
@@ -1001,7 +1000,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
         }
         else
         {
-            return blockState.getBlock() instanceof FarmBlock;
+            return blockState.getBlock() instanceof FarmlandBlock;
         }
     }
 
@@ -1059,7 +1058,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
         }
         BlockState state = world.getBlockState(position.above());
         if(state.getBlock() instanceof CropBlock
-                || state.getBlock() instanceof FungusBlock
+                || state.getBlock() instanceof NetherFungusBlock
                 || state.getBlock() instanceof BushBlock
                 || state.getBlock() instanceof StemBlock
                 || belowState.getBlock() instanceof BlockScarecrow

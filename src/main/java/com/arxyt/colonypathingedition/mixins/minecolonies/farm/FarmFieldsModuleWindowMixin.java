@@ -18,7 +18,7 @@ import com.minecolonies.core.colony.buildings.moduleviews.FieldsModuleView;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,7 +43,7 @@ public abstract class FarmFieldsModuleWindowMixin extends AbstractModuleWindow<F
 
     public FarmFieldsModuleWindowMixin(final FieldsModuleView moduleView)
     {
-        super(moduleView, ResourceLocation.parse(Constants.MOD_ID + "gui/layouthuts/layoutfarmfields.xml"));
+        super(moduleView, Identifier.parse(Constants.MOD_ID + "gui/layouthuts/layoutfarmfields.xml"));
     }
 
     /**

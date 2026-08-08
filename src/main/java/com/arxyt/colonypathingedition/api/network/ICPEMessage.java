@@ -4,9 +4,10 @@ import com.arxyt.colonypathingedition.ColonyPathingEdition;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,7 @@ public interface ICPEMessage<T extends CustomPacketPayload> extends CustomPacket
      * 自动生成 TYPE
      */
     static <T extends CustomPacketPayload> Type<T> createType(Class<T> clazz) {
-        return new Type<>(ResourceLocation.fromNamespaceAndPath(
+        return new Type<>(Identifier.fromNamespaceAndPath(
                 ColonyPathingEdition.MODID,
                 clazz.getSimpleName().toLowerCase()
         ));
@@ -69,6 +70,6 @@ public interface ICPEMessage<T extends CustomPacketPayload> extends CustomPacket
      * 发送给服务器（客户端调用）
      */
     default void syncToServer() {
-        PacketDistributor.sendToServer(this);
+        ClientPacketDistributor.sendToServer(this);
     }
 }

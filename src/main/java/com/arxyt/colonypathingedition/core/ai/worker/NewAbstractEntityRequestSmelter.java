@@ -434,7 +434,10 @@ public abstract class NewAbstractEntityRequestSmelter <J extends AbstractJobCraf
                     int addProgress = worker.getCitizenData().getCitizenSkillHandler().getLevel(getModuleForJob().getPrimarySkill()) / 2;
                     while (addProgress > 0 && !furnace.getItem(SMELTABLE_SLOT).isEmpty()) {
                         addProgress = extrasFurnace.pathFindEdition$addProgress(addProgress);
-                        AbstractFurnaceBlockEntity.serverTick(world, pos, world.getBlockState(pos), furnace);
+                        // Colony/building AI only ever runs server-side, so this world is always a ServerLevel.
+                        if (world instanceof ServerLevel serverLevel) {
+                            AbstractFurnaceBlockEntity.serverTick(serverLevel, pos, world.getBlockState(pos), furnace);
+                        }
                     }
                 }
             }
@@ -494,7 +497,10 @@ public abstract class NewAbstractEntityRequestSmelter <J extends AbstractJobCraf
                         int addProgress = (int) (worker.getCitizenData().getCitizenSkillHandler().getLevel(getModuleForJob().getPrimarySkill()) * 1.8);
                         while (addProgress > 0 && !furnace.getItem(SMELTABLE_SLOT).isEmpty()){
                             addProgress = extrasFurnace.pathFindEdition$addProgress(addProgress);
-                            AbstractFurnaceBlockEntity.serverTick(world, pos, world.getBlockState(pos), furnace);
+                            // Colony/building AI only ever runs server-side, so this world is always a ServerLevel.
+                            if (world instanceof ServerLevel serverLevel) {
+                                AbstractFurnaceBlockEntity.serverTick(serverLevel, pos, world.getBlockState(pos), furnace);
+                            }
                         }
                     }
                 }

@@ -9,9 +9,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -49,7 +48,7 @@ public abstract class ItemLargeBottleMixin extends Item {
             return super.interactLivingEntity(stack, player, entity, hand);
         }
 
-        if (player.getCooldowns().isOnCooldown(this))
+        if (player.getCooldowns().isOnCooldown(stack))
         {
             return super.interactLivingEntity(stack, player, entity, hand);
         }
@@ -83,12 +82,12 @@ public abstract class ItemLargeBottleMixin extends Item {
      * @reason No More Cooldowns / React with cauldron
      */
     @Overwrite
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull final Level level, final Player player, @NotNull final InteractionHand hand)
+    public @NotNull InteractionResult use(@NotNull final Level level, final Player player, @NotNull final InteractionHand hand)
     {
         final ItemStack itemstack = player.getItemInHand(hand);
         if (this != ModItems.large_empty_bottle)
         {
-            return InteractionResultHolder.pass(itemstack);
+            return InteractionResult.PASS;
         }
 
         BlockHitResult blockhitresult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
@@ -99,7 +98,7 @@ public abstract class ItemLargeBottleMixin extends Item {
                 BlockPos blockpos = blockhitresult.getBlockPos();
                 if (!level.mayInteract(player, blockpos))
                 {
-                    return InteractionResultHolder.pass(itemstack);
+                    return InteractionResult.PASS;
                 }
 
                 if (level.getFluidState(blockpos).is(FluidTags.WATER))
@@ -110,10 +109,10 @@ public abstract class ItemLargeBottleMixin extends Item {
                         player.drop(ModItems.large_water_bottle.getDefaultInstance(), false);
                     }
                     itemstack.shrink(1);
-                    return InteractionResultHolder.success(itemstack);
+                    return InteractionResult.SUCCESS.heldItemTransformedTo(itemstack);
                 }
             }
         }
-        return InteractionResultHolder.pass(itemstack);
+        return InteractionResult.PASS;
     }
 }

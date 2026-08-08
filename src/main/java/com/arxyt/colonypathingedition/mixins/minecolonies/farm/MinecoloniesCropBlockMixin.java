@@ -5,8 +5,9 @@ import com.minecolonies.core.blocks.MinecoloniesCropBlock;
 import com.minecolonies.core.blocks.MinecoloniesFarmland;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -23,7 +24,7 @@ public abstract class MinecoloniesCropBlockMixin extends AbstractBlockMinecoloni
 
     public MinecoloniesCropBlockMixin()
     {
-        super(Properties.of().mapColor(MapColor.PLANT).noCollission().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
+        super(Properties.of().mapColor(MapColor.PLANT).noCollision().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
     }
 
     /**
@@ -31,9 +32,17 @@ public abstract class MinecoloniesCropBlockMixin extends AbstractBlockMinecoloni
      * @reason There is bugs when add broken state into updateShape directly. So we overwrite it.
      */
     @Overwrite(remap = false)
-    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction dir, @NotNull BlockState newState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos)
+    public @NotNull BlockState updateShape(
+            @NotNull BlockState state,
+            @NotNull LevelReader level,
+            @NotNull ScheduledTickAccess ticks,
+            @NotNull BlockPos pos,
+            @NotNull Direction dir,
+            @NotNull BlockPos neighborPos,
+            @NotNull BlockState newState,
+            @NotNull RandomSource random)
     {
-        return !canSurviveOnFarmland(state, level, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, dir, newState, level, pos, neighborPos);
+        return !canSurviveOnFarmland(state, level, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, level, ticks, pos, dir, neighborPos, newState, random);
     }
 
     @Unique

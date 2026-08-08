@@ -101,7 +101,6 @@
     "minecolonies.module.MinimumStockModuleMixin",
     "minecolonies.module.view.MinimumStockModuleViewMixin",
     "minecolonies.workersetting.RegisteredStructureManagerMixin",
-    "minecraft.AbstractMinecartMixin",
     "minecraft.DamageSourcesAccessor",
     "minecraft.DoorBlockMixin",
     "minecraft.FenceGateBlockMixin",

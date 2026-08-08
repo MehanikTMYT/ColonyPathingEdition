@@ -176,7 +176,7 @@ public abstract class UnstuckMixin<NAV extends PathNavigation & IMinecoloniesNav
         final Level world = navigator.getOurEntity().level();
         final Mob entity = navigator.getOurEntity();
 
-        if (!FMLEnvironment.production)
+        if (!FMLEnvironment.isProduction())
         {
             Log.getLogger()
                     .warn("Entity complete stuck action stuck:" + navigator.getOurEntity() + " desired:" + navigator.getSafeDestination() + " stuckLevel:" + stuckLevel + " teleport:"

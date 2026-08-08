@@ -92,10 +92,10 @@ public abstract class BuildingHospitalMixin implements BuildingHospitalExtra {
     @Inject(method = "deserializeNBT(Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"), remap = false)
     private void deserializeNBTAddition (HolderLookup.Provider provider, CompoundTag compound, CallbackInfo ci){
         if(compound.contains("on_duty_worker")){
-            healerOnDuty = compound.getInt("on_duty_worker");
+            healerOnDuty = compound.getIntOr("on_duty_worker", healerOnDuty);
         }
         if(compound.contains("duty_can_change")){
-            workerActive = compound.getBoolean("duty_can_change");
+            workerActive = compound.getBooleanOr("duty_can_change", workerActive);
         }
     }
 

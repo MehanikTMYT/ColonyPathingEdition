@@ -10,7 +10,6 @@ import com.minecolonies.api.util.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -82,10 +81,10 @@ public class FoodBlackListMenuModule extends AbstractBuildingModule implements I
         if(compound.contains(TAG_BLACK_LIST)) {
             black_list.clear();
         }
-        final ListTag minimumStockTagList = compound.getList(TAG_BLACK_LIST, Tag.TAG_COMPOUND);
+        final ListTag minimumStockTagList = compound.getListOrEmpty(TAG_BLACK_LIST);
         for (int i = 0; i < minimumStockTagList.size(); i++)
         {
-            final ItemStack itemStack = ItemStack.parseOptional(provider, minimumStockTagList.getCompound(i));
+            final ItemStack itemStack = Utils.parseOptionalItemStack(provider, minimumStockTagList.getCompoundOrEmpty(i));
             if (FoodUtils.EDIBLE.test(itemStack))
             {
                 black_list.add(new ItemStorage(itemStack));
@@ -99,7 +98,7 @@ public class FoodBlackListMenuModule extends AbstractBuildingModule implements I
         @NotNull final ListTag blacklistStockTagList = new ListTag();
         for (final ItemStorage menuItem : black_list)
         {
-            blacklistStockTagList.add(menuItem.getItemStack().saveOptional(provider));
+            blacklistStockTagList.add(Utils.saveOptionalItemStack(provider, menuItem.getItemStack()));
         }
         compound.put(TAG_BLACK_LIST, blacklistStockTagList);
     }

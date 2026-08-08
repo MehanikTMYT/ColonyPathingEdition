@@ -21,6 +21,7 @@ import com.minecolonies.core.entity.ai.workers.production.herders.AbstractEntity
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -141,7 +142,7 @@ public abstract class AbstractEntityAIHerderMixin<J extends AbstractJob<?, J>, B
             else{
                 for (Animal animal : animals){
                     CompoundTag tag = animal.getPersistentData();
-                    if (!tag.getBoolean("ColonyPathingEdition_Penned")) {
+                    if (!tag.getBooleanOr("ColonyPathingEdition_Penned", false)) {
                         tag.putBoolean("ColonyPathingEdition_Penned", true);
                     }
                 }
@@ -343,7 +344,7 @@ public abstract class AbstractEntityAIHerderMixin<J extends AbstractJob<?, J>, B
     {
         worker.swing(InteractionHand.MAIN_HAND); // visual only
         DamageSource ds = animal.level().damageSources().playerAttack(fakePlayer);
-        if(animal.hurt(ds, PathingConfig.BUTCHER_INSTANT_KILL.get()? 999.0F : 3.0F * building.getBuildingLevel())) {
+        if(animal.level() instanceof ServerLevel serverLevel && animal.hurtServer(serverLevel, ds, PathingConfig.BUTCHER_INSTANT_KILL.get()? 999.0F : 3.0F * building.getBuildingLevel())) {
             CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
         }
     }
@@ -400,7 +401,7 @@ public abstract class AbstractEntityAIHerderMixin<J extends AbstractJob<?, J>, B
                 }
                 worker.getCitizenExperienceHandler().addExperience(XP_PER_ACTION);
                 worker.level().broadcastEntityEvent(toFeed, (byte) 18);
-                toFeed.playSound(SoundEvents.GENERIC_EAT, 1.0F, 1.0F);
+                toFeed.playSound(SoundEvents.GENERIC_EAT.value(), 1.0F, 1.0F);
                 CitizenItemUtils.removeHeldItem(worker);
                 fedRecently.put(toFeed.getUUID(), worker.level().getGameTime());
             }

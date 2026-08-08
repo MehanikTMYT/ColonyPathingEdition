@@ -103,7 +103,7 @@ public abstract class EntityAIConcreteMixerMixin extends AbstractEntityAICraftin
         if (InventoryUtils.attemptReduceStackInItemHandler(worker.getInventoryCitizen(), stack, quantity))
         {
             ((BuildingConcreteMixerExtra)building).addSimulatedBlock(posToPlace,quantity);
-            world.setBlock(posToPlace, block.defaultBlockState().updateShape(Direction.DOWN, block.defaultBlockState(), world, posToPlace, posToPlace), UPDATE_FLAG);
+            world.setBlock(posToPlace, block.defaultBlockState().updateShape(world, world, posToPlace, Direction.DOWN, posToPlace, block.defaultBlockState(), world.getRandom()), UPDATE_FLAG);
         }
 
         return getState();

@@ -11,7 +11,7 @@ import com.ldtteam.blockui.views.ScrollingList;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class TavernRecruitModuleWindow extends AbstractModuleWindow<TavernRecruitModuleView> {
 
@@ -22,7 +22,7 @@ public class TavernRecruitModuleWindow extends AbstractModuleWindow<TavernRecrui
     private final TavernRecruitModuleView moduleView;
 
     public TavernRecruitModuleWindow(final TavernRecruitModuleView moduleView) {
-        super(moduleView, ResourceLocation.parse(ColonyPathingEdition.MODID + RESOURCE_STRING));
+        super(moduleView, Identifier.parse(ColonyPathingEdition.MODID + RESOURCE_STRING));
         this.moduleView = moduleView;
         visitors = this.window.findPaneOfTypeByID("visitors", ScrollingList.class);
         this.updateList();

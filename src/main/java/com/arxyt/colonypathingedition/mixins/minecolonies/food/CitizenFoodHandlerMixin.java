@@ -6,6 +6,7 @@ import com.minecolonies.api.entity.citizen.citizenhandlers.ICitizenFoodHandler;
 import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.api.util.FoodUtils;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenFoodHandler;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
@@ -44,7 +45,7 @@ public class CitizenFoodHandlerMixin {
                     qualityFoodAdder += 0.5F;
                     diversityFoodAdder += 0.5F;
                 }
-                FoodProperties foodProperties = foodItem.getFoodProperties(new ItemStack(foodItem),null);
+                FoodProperties foodProperties = new ItemStack(foodItem).get(DataComponents.FOOD);
                 if(foodProperties != null){
                     final float nutritionDensity = foodProperties.saturation() / foodProperties.nutrition();
                     qualityFoodAdder += nutritionDensity / 2.0f;

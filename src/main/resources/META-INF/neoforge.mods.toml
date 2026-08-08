@@ -69,7 +69,7 @@ config="${mod_id}.mixins.json"
     # Optional field describing why the dependency is required or why it is incompatible
     # reason="..."
     # The version range of the dependency
-    versionRange="[21.1.174,)" #mandatory
+    versionRange="[26.1.2.81,)" #mandatory
     # An ordering relationship for the dependency.
     # BEFORE - This mod is loaded BEFORE the dependency
     # AFTER - This mod is loaded AFTER the dependency
@@ -89,7 +89,7 @@ config="${mod_id}.mixins.json"
 [[dependencies."${mod_id}"]]
     modId="minecolonies"
     type="required"
-    versionRange="[1.1.1285-1.21.1-snapshot,)"
+    versionRange="[0.0.11-26.1.2,)"
     ordering="NONE"
     side="BOTH"
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares

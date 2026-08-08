@@ -15,7 +15,7 @@ import com.minecolonies.core.colony.buildingextensions.PlantationField;
 import com.minecolonies.core.tileentities.TileEntityPlantationField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -44,7 +44,7 @@ public abstract class BlockPlantationFieldMixin extends AbstractBlockMinecolonie
      * @reason Sync plantation
      */
     @Overwrite(remap = false)
-    public @NotNull ItemInteractionResult useItemOn(
+    public @NotNull InteractionResult useItemOn(
             final @NotNull ItemStack stack,
             final @NotNull BlockState state,
             final Level worldIn,
@@ -54,21 +54,21 @@ public abstract class BlockPlantationFieldMixin extends AbstractBlockMinecolonie
             final @NotNull BlockHitResult ray)
     {
         // If this is the client side, open the plantation field GUI
-        if (worldIn.isClientSide)
+        if (worldIn.isClientSide())
         {
             if (hand == InteractionHand.OFF_HAND)
             {
-                return ItemInteractionResult.FAIL;
+                return InteractionResult.FAIL;
             }
 
             final BlockEntity tileEntity = worldIn.getBlockEntity(pos);
             if (tileEntity instanceof TileEntityPlantationField plantationField)
             {
                 new WindowPlantationField(plantationField).open();
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
 
-            return ItemInteractionResult.FAIL;
+            return InteractionResult.FAIL;
         }
 
         final BlockEntity tileEntity = worldIn.getBlockEntity(pos);
@@ -117,6 +117,6 @@ public abstract class BlockPlantationFieldMixin extends AbstractBlockMinecolonie
             }
         }
         // This must succeed in Remote to stop more right click interactions like placing blocks
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 }

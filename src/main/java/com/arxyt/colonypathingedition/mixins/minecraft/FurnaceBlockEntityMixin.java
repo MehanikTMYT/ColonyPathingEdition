@@ -3,11 +3,11 @@ package com.arxyt.colonypathingedition.mixins.minecraft;
 import com.arxyt.colonypathingedition.api.FurnaceBlockEntityExtras;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -17,10 +17,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractFurnaceBlockEntity.class)
 public abstract class FurnaceBlockEntityMixin implements FurnaceBlockEntityExtras {
-    @Shadow int litTime;
-    @Shadow int cookingProgress;
+    @Shadow int litTimeRemaining;
+    @Shadow int cookingTimer;
     @Shadow int cookingTotalTime;
-    @Shadow int litDuration;
+    @Shadow int litTotalTime;
 
     @Unique private int pathFindEdition$workerID = -1;
     @Unique private int pathFindEdition$pickerID = -1;
@@ -30,11 +30,11 @@ public abstract class FurnaceBlockEntityMixin implements FurnaceBlockEntityExtra
     // 增加进度
     @Unique
     public int pathFindEdition$addProgress(int adder){
-        cookingProgress += adder;
-        if(cookingProgress >= cookingTotalTime){
-            int left = cookingProgress - cookingTotalTime;
-            cookingProgress =  cookingTotalTime - 1;
-            litTime ++;
+        cookingTimer += adder;
+        if(cookingTimer >= cookingTotalTime){
+            int left = cookingTimer - cookingTotalTime;
+            cookingTimer =  cookingTotalTime - 1;
+            litTimeRemaining ++;
             return left;
         }
         return 0;
@@ -43,12 +43,12 @@ public abstract class FurnaceBlockEntityMixin implements FurnaceBlockEntityExtra
     // 增加燃料点燃时间
     @Unique
     public void pathFindEdition$addLitTime(int adder){
-        if(litTime == 0){
+        if(litTimeRemaining == 0){
             return;
         }
-        litTime += adder;
-        if(litDuration < litTime){
-            litTime = litDuration;
+        litTimeRemaining += adder;
+        if(litTotalTime < litTimeRemaining){
+            litTimeRemaining = litTotalTime;
         }
     }
 
@@ -61,7 +61,7 @@ public abstract class FurnaceBlockEntityMixin implements FurnaceBlockEntityExtra
 
     @Unique
     public void pathFindEdition$setPickup(AbstractFurnaceBlockEntity pBlockEntity){
-        if(cookingTotalTime == cookingProgress + 1 && pBlockEntity.getItem(Constants.SMELTABLE_SLOT).getCount() == 1){
+        if(cookingTotalTime == cookingTimer + 1 && pBlockEntity.getItem(Constants.SMELTABLE_SLOT).getCount() == 1){
             pathFindEdition$setFurnacePicker(pathFindEdition$workerID);
         }
     }
@@ -128,34 +128,24 @@ public abstract class FurnaceBlockEntityMixin implements FurnaceBlockEntityExtra
     }
 
     @Inject(method = "saveAdditional", at = @At("RETURN"))
-    private void onSave(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
-        tag.putInt("WorkerID", pathFindEdition$workerID);
-        tag.putInt("PickerID", pathFindEdition$pickerID);
+    private void onSave(ValueOutput output, CallbackInfo ci) {
+        output.putInt("WorkerID", pathFindEdition$workerID);
+        output.putInt("PickerID", pathFindEdition$pickerID);
     }
 
     @Inject(method = "loadAdditional", at = @At("RETURN"))
-    private void onLoad(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
-        if (tag.contains("WorkerID")) {
-            pathFindEdition$workerID = tag.getInt("WorkerID");
-        }
-        else{
-            pathFindEdition$workerID = -1;
-        }
-        if (tag.contains("PickerID")) {
-            pathFindEdition$pickerID = tag.getInt("PickerID");
-        }
-        else{
-            pathFindEdition$pickerID = -1;
-        }
+    private void onLoad(ValueInput input, CallbackInfo ci) {
+        pathFindEdition$workerID = input.getIntOr("WorkerID", -1);
+        pathFindEdition$pickerID = input.getIntOr("PickerID", -1);
     }
 
     @Inject(method = "serverTick", at = @At("RETURN"))
-    private static void afterServerTick(Level pLevel, BlockPos pPos, BlockState pState, AbstractFurnaceBlockEntity pBlockEntity, CallbackInfo ci){
+    private static void afterServerTick(ServerLevel pLevel, BlockPos pPos, BlockState pState, AbstractFurnaceBlockEntity pBlockEntity, CallbackInfo ci){
         ((FurnaceBlockEntityExtras)pBlockEntity).pathFindEdition$tickProtect();
     }
 
     @Inject(method = "serverTick", at = @At("HEAD"))
-    private static void beforeServerTick(Level pLevel, BlockPos pPos, BlockState pState, AbstractFurnaceBlockEntity pBlockEntity, CallbackInfo ci){
+    private static void beforeServerTick(ServerLevel pLevel, BlockPos pPos, BlockState pState, AbstractFurnaceBlockEntity pBlockEntity, CallbackInfo ci){
         ((FurnaceBlockEntityExtras)pBlockEntity).pathFindEdition$setPickup(pBlockEntity);
     }
 }

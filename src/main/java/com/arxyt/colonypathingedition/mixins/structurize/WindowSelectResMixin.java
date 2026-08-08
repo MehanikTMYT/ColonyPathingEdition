@@ -5,7 +5,7 @@ import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.structurize.client.gui.AbstractWindowSkeleton;
 import com.ldtteam.structurize.client.gui.WindowSelectRes;
 import com.ldtteam.structurize.client.gui.util.InputFilters;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -15,7 +15,7 @@ import static com.ldtteam.structurize.client.gui.WindowSelectRes.COUNT;
 @Mixin(value = WindowSelectRes.class, remap = false)
 public abstract class WindowSelectResMixin extends AbstractWindowSkeleton {
 
-    public WindowSelectResMixin(final ResourceLocation xml) {
+    public WindowSelectResMixin(final Identifier xml) {
         super(xml);
     }
 
@@ -23,7 +23,7 @@ public abstract class WindowSelectResMixin extends AbstractWindowSkeleton {
     private boolean updateResources$contains(String instance, CharSequence s) {
         return LinkageManager.match(instance, s);
     }
-    @Redirect(method = "<init>(Lnet/minecraft/resources/ResourceLocation;Lcom/ldtteam/blockui/views/BOWindow;Lnet/minecraft/network/chat/Component;Lnet/minecraft/world/item/ItemStack;Ljava/util/List;Ljava/util/function/BiConsumer;ZLnet/minecraft/network/chat/Component;)V", at = @At(value = "INVOKE", target = "Lcom/ldtteam/blockui/controls/TextField;setFilter(Lcom/ldtteam/blockui/controls/TextField$Filter;)V"), remap = false)
+    @Redirect(method = "<init>(Lnet/minecraft/resources/Identifier;Lcom/ldtteam/blockui/views/BOWindow;Lnet/minecraft/network/chat/Component;Lnet/minecraft/world/item/ItemStack;Ljava/util/List;Ljava/util/function/BiConsumer;ZLnet/minecraft/network/chat/Component;)V", at = @At(value = "INVOKE", target = "Lcom/ldtteam/blockui/controls/TextField;setFilter(Lcom/ldtteam/blockui/controls/TextField$Filter;)V"), remap = false)
     public void resetFilter(TextField instance, TextField.Filter f){
         instance.setFilter(InputFilters.ONLY_NUMBERS);
         instance.setHandler(this::onTypeIn);

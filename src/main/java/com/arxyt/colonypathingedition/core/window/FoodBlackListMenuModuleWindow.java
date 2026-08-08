@@ -13,8 +13,9 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -75,7 +76,7 @@ public class FoodBlackListMenuModuleWindow extends AbstractModuleWindow<FoodBlac
      */
     public FoodBlackListMenuModuleWindow(final FoodBlackListMenuModuleView moduleView)
     {
-        super(moduleView, ResourceLocation.fromNamespaceAndPath(ColonyPathingEdition.MODID, "gui/layouthuts/layoutfoodblacklist.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(ColonyPathingEdition.MODID, "gui/layouthuts/layoutfoodblacklist.xml"));
 
         menuList = this.window.findPaneOfTypeByID("resourcesstock", ScrollingList.class);
 
@@ -247,7 +248,7 @@ public class FoodBlackListMenuModuleWindow extends AbstractModuleWindow<FoodBlac
     private void updateResources()
     {
         final Predicate<ItemStack> filterPredicate = stack -> filter.isEmpty()
-                || LinkageManager.match(stack.getDescriptionId().toLowerCase(Locale.US),filter.toLowerCase(Locale.US))
+                || LinkageManager.match(stack.getItem().getDescriptionId().toLowerCase(Locale.US),filter.toLowerCase(Locale.US))
                 || LinkageManager.match(stack.getHoverName().getString().toLowerCase(Locale.US),filter.toLowerCase(Locale.US));
         currentDisplayedList.clear();
         for (final ItemStorage storage : groupedItemList)
@@ -270,8 +271,8 @@ public class FoodBlackListMenuModuleWindow extends AbstractModuleWindow<FoodBlac
     protected void applySorting(final List<ItemStorage> displayedList)
     {
         displayedList.sort((o1, o2) -> {
-            int score = o1.getItem() instanceof IMinecoloniesFoodItem foodItem ? foodItem.getTier()* -100 : -o1.getItemStack().getFoodProperties(null).nutrition();
-            int score2 = o2.getItem() instanceof IMinecoloniesFoodItem foodItem2 ? foodItem2.getTier()* -100 : -o2.getItemStack().getFoodProperties(null).nutrition();
+            int score = o1.getItem() instanceof IMinecoloniesFoodItem foodItem ? foodItem.getTier()* -100 : -o1.getItemStack().get(DataComponents.FOOD).nutrition();
+            int score2 = o2.getItem() instanceof IMinecoloniesFoodItem foodItem2 ? foodItem2.getTier()* -100 : -o2.getItemStack().get(DataComponents.FOOD).nutrition();
 
             final int scoreComparison = Integer.compare(score, score2);
             if (scoreComparison != 0)

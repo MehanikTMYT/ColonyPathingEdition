@@ -16,9 +16,9 @@ import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.client.gui.modules.building.WindowListRecipes;
 import com.minecolonies.core.colony.buildings.moduleviews.CraftingModuleView;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +44,7 @@ public abstract class WindowListRecipesMixin extends AbstractModuleWindow<Crafti
 
     public WindowListRecipesMixin(final CraftingModuleView module)
     {
-        super(module, ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutlistrecipes.xml"));
+        super(module, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutlistrecipes.xml"));
     }
 
     @Override
@@ -77,7 +77,7 @@ public abstract class WindowListRecipesMixin extends AbstractModuleWindow<Crafti
                     if (moduleView.isRecipeAlterationAllowed())
                     {
                         removeButton.on();
-                        if (recipe.getRecipeSource() != null && !Screen.hasControlDown())
+                        if (recipe.getRecipeSource() != null && !Minecraft.getInstance().hasControlDown())
                         {
                             isBuiltIn = true;
                             removeButton.disable();
@@ -144,7 +144,7 @@ public abstract class WindowListRecipesMixin extends AbstractModuleWindow<Crafti
     public void onUpdate()
     {
         super.onUpdate();
-        if (!Screen.hasShiftDown())
+        if (!Minecraft.getInstance().hasShiftDown())
         {
             lifeCount++;
         }

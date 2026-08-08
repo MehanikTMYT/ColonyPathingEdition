@@ -204,11 +204,11 @@ public abstract class EntityAIWorkLumberjackMixin extends AbstractEntityAICrafti
                         .expandTowards(-1, -1, -1))
                 .stream()
                 .filter(item -> item != null && item.isAlive() &&
-                        (!item.getPersistentData().contains("PreventRemoteMovement") || !item.getPersistentData().getBoolean("PreventRemoteMovement")) &&
+                        !item.getPersistentData().getBooleanOr("PreventRemoteMovement", false) &&
                         isItemWorthPickingUp(item.getItem()))
                 .toList();
         for (ItemEntity item: farItems) {
-            item.absMoveTo(worker.getBlockX() + 0.5d,worker.getBlockY(),worker.getBlockZ() + 0.5d);
+            item.setPos(worker.getBlockX() + 0.5d,worker.getBlockY(),worker.getBlockZ() + 0.5d);
         }
     }
 
@@ -222,14 +222,14 @@ public abstract class EntityAIWorkLumberjackMixin extends AbstractEntityAICrafti
                         .expandTowards(-1, -1, -1))
                 .stream()
                 .filter(item -> item != null && item.isAlive() &&
-                        (!item.getPersistentData().contains("PreventRemoteMovement") || !item.getPersistentData().getBoolean("PreventRemoteMovement")) &&
+                        !item.getPersistentData().getBooleanOr("PreventRemoteMovement", false) &&
                         isItemWorthPickingUp(item.getItem()))
                 .toList();
         if(farItems.isEmpty()){
             return false;
         }
         for (ItemEntity item: farItems) {
-            item.absMoveTo(itemPos.getX() + 0.5d, itemPos.getY(), itemPos.getZ() + 0.5d);
+            item.setPos(itemPos.getX() + 0.5d, itemPos.getY(), itemPos.getZ() + 0.5d);
         }
         //break leaves below.
         List<BlockPos> BlockPosList = new ArrayList<>();

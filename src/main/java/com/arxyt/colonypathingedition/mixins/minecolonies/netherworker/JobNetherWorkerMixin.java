@@ -19,7 +19,7 @@ public abstract class JobNetherWorkerMixin implements JobNetherWorkerExtra {
     @Inject(method = "deserializeNBT(Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"), remap = false)
     public void additionalDeserializeNBT(HolderLookup.Provider provider, CompoundTag compound, CallbackInfo ci){
         if(compound.contains("extra_rounds")){
-            extraRounds = compound.getBoolean("extra_rounds");
+            extraRounds = compound.getBooleanOr("extra_rounds", extraRounds);
         }
     }
 

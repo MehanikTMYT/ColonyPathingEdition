@@ -138,7 +138,7 @@ public class CitizenAIMixin {
             if (lastState == CitizenAIState.SLEEP)
             {
                 citizen.setVisibleStatusIfNone(SLEEP);
-                if(citizen.level().getDayTime() % 24000 < 23700) {
+                if(citizen.level().getDefaultClockTime() % 24000 < 23700) {
                     citizen.getCitizenAI().setCurrentDelay(300);
                 }
                 else{
@@ -193,7 +193,7 @@ public class CitizenAIMixin {
         }
 
         // Mourning
-        if (citizen.getCitizenData().getCitizenMournHandler().isMourning() && citizen.level().getDayTime() % 24000 < NOON)
+        if (citizen.getCitizenData().getCitizenMournHandler().isMourning() && citizen.level().getDefaultClockTime() % 24000 < NOON)
         {
             if (lastState != CitizenAIState.MOURN)
             {
@@ -210,7 +210,7 @@ public class CitizenAIMixin {
         }
 
         // Work
-        if (citizen.getCitizenJobHandler().getColonyJob() == null || (citizen.isBaby() && citizen.getCitizenJobHandler().getColonyJob() instanceof JobPupil && citizen.level().getDayTime() % 24000 > 9000))
+        if (citizen.getCitizenJobHandler().getColonyJob() == null || (citizen.isBaby() && citizen.getCitizenJobHandler().getColonyJob() instanceof JobPupil && citizen.level().getDefaultClockTime() % 24000 > 9000))
         {
             citizen.setVisibleStatusIfNone(HOUSE);
             citizen.getCitizenAI().setCurrentDelay(20 * 15);

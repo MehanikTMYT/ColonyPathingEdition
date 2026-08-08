@@ -3,7 +3,7 @@ package com.arxyt.colonypathingedition.core.costants;
 
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.jobs.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Set;
 
@@ -16,6 +16,13 @@ public final class AdditionalContants {
     public static final int WAITING_DELAY = 10;
     public static final int WALKING_DELAY = 20;
     public static final int STUCK_DELAY = 100;
+
+    /**
+     * {@code net.minecraft.world.level.Level.TICKS_PER_DAY} was removed in the 26.1.2 vanilla API
+     * with no replacement constant (verified against the decompiled 26.1.2 sources). The value
+     * itself (game ticks in one Minecraft day) is unchanged, so it is re-declared locally here.
+     */
+    public static final long TICKS_PER_DAY = 24000L;
 
     public static final Set<Class<?>> JOBS_FORCE_EAT_AT_HUT = Set.of(JobChef.class, JobCook.class, JobMiner.class);
     public static final Set<Class<?>> JOBS_EAT_IMMEDIATELY = Set.of(JobChef.class, JobCook.class);
@@ -33,5 +40,5 @@ public final class AdditionalContants {
     public static final String RESURRECT = "com.arxyt.colonypathingedition.core.easycolony.colony.resurrect";
     public static final String MODULE_WARN = "com.arxyt.colonypathingedition.core.module.no_such_module";
 
-    public static final ResourceLocation PRECISE_FARMING = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "effects/colonypathedition_precise_farming");
+    public static final Identifier PRECISE_FARMING = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "effects/colonypathedition_precise_farming");
 }

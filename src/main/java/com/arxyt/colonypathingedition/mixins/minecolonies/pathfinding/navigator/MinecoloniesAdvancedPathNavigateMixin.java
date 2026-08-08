@@ -70,7 +70,7 @@ public abstract class MinecoloniesAdvancedPathNavigateMixin extends AbstractAdva
     @Shadow(remap = false) private int pauseTickBackupAmount;
     @Shadow(remap = false) private IStuckHandler<MinecoloniesAdvancedPathNavigate> stuckHandler;
 
-    @Unique private int randomTimer = 15 + level.random.nextInt(5);
+    @Unique private int randomTimer = 15 + level.getRandom().nextInt(5);
 
     @Unique private MinecoloniesAdvancedPathNavigate asNavigator() {
         return (MinecoloniesAdvancedPathNavigate)(Object)this;
@@ -140,7 +140,7 @@ public abstract class MinecoloniesAdvancedPathNavigateMixin extends AbstractAdva
             RailShape railshape = blockstate.getBlock() instanceof BaseRailBlock
                     ? ((BaseRailBlock) blockstate.getBlock()).getRailDirection(blockstate, level, tpPos, null)
                     : RailShape.NORTH_SOUTH;
-            if (railshape.isAscending()) {
+            if (railshape.isSlope()) {
                 yOffset = 0.5D;
             }
             final double x = tpPlace.x + 0.5D;
@@ -150,7 +150,7 @@ public abstract class MinecoloniesAdvancedPathNavigateMixin extends AbstractAdva
             minecoloniesMinecart.xo = x;
             minecoloniesMinecart.yo = y;
             minecoloniesMinecart.zo = z;
-            mob.startRiding(minecoloniesMinecart, true);
+            mob.startRiding(minecoloniesMinecart, true, true);
         }
     }
 
@@ -369,7 +369,7 @@ public abstract class MinecoloniesAdvancedPathNavigateMixin extends AbstractAdva
         // we don't know if this will lower tps, so leave it as usual;
         if (--randomTimer < 0)
         {
-            randomTimer = 15 + level.random.nextInt(5);
+            randomTimer = 15 + level.getRandom().nextInt(5);
             if (WorkerUtil.isPathBlock(level.getBlockState(findBlockUnderEntity(ourEntity)).getBlock()))
             {
                 speedModifier = ON_PATH_SPEED_MULTIPLIER * getSpeedFactor();
@@ -410,7 +410,7 @@ public abstract class MinecoloniesAdvancedPathNavigateMixin extends AbstractAdva
                 {
                     Vec3 vector3d2 = path.getNextEntityPos(mob);
                     tempPos.set(Mth.floor(vector3d2.x), Mth.floor(vector3d2.y), Mth.floor(vector3d2.z));
-                    if (ChunkPos.asLong(tempPos) == mob.chunkPosition().toLong() || WorldUtil.isEntityBlockLoaded(level, tempPos))
+                    if (ChunkPos.pack(tempPos) == mob.chunkPosition().pack() || WorldUtil.isEntityBlockLoaded(level, tempPos))
                     {
                         double xOffset = 0;
                         double zOffset = 0;

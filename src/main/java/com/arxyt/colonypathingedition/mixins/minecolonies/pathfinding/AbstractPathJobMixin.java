@@ -218,7 +218,7 @@ public abstract class AbstractPathJobMixin{
                         }
                         cost += pathingOptions.dropCost * basicDropCost;
 
-                        if (below.getBlock() instanceof FarmBlock) {
+                        if (below.getBlock() instanceof FarmlandBlock) {
                             cost += destroyingFarmlandCost;
                         }
                     }
@@ -676,7 +676,7 @@ public abstract class AbstractPathJobMixin{
 
         //  Can we traverse into this node?  Fix the y up, skip on already explored nodes
         final int firstY = getGroundHeight(node, nextX, nextY, nextZ);
-        if (firstY < world.getMinBuildHeight())
+        if (firstY < world.getMinY())
         {
             return;
         }
@@ -744,7 +744,7 @@ public abstract class AbstractPathJobMixin{
             return;
         }
 
-        final boolean isSwimming = invokeCalculateSwimming(belowState, state, aboveState, nextNode) && !(state.getBlock() instanceof WaterlilyBlock);
+        final boolean isSwimming = invokeCalculateSwimming(belowState, state, aboveState, nextNode) && !(state.getBlock() instanceof LilyPadBlock);
         if (isSwimming && !pathingOptions.canSwim()) {
             return;
         }
@@ -896,7 +896,7 @@ public abstract class AbstractPathJobMixin{
         BlockState below = cachedBlockLookup.getBlockState(nextNode.x, nextNode.y - 1, nextNode.z);
         BlockState state = cachedBlockLookup.getBlockState(nextNode.x, nextNode.y, nextNode.z);
 
-        if (below.getBlock() instanceof FarmBlock)
+        if (below.getBlock() instanceof FarmlandBlock)
         {
             extras.setOnFarmland();
         }

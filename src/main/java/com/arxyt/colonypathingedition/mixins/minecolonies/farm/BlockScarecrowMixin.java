@@ -8,7 +8,7 @@ import com.minecolonies.core.tileentities.TileEntityScarecrow;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -49,10 +49,10 @@ public abstract class BlockScarecrowMixin extends AbstractBlockMinecoloniesDefau
             final Player player,
             final InteractionHand hand,
             final BlockHitResult ray,
-            CallbackInfoReturnable<ItemInteractionResult> cir
+            CallbackInfoReturnable<InteractionResult> cir
     ){
         // If the world is client, open the inventory of the field.
-        if (worldIn.isClientSide)
+        if (worldIn.isClientSide())
         {
             // Get the entity of the bottom half
             DoubleBlockHalf half = state.getValue(HALF);
@@ -61,16 +61,16 @@ public abstract class BlockScarecrowMixin extends AbstractBlockMinecoloniesDefau
             if (entity instanceof TileEntityScarecrow scarecrow)
             {
                 new NewWindowField(scarecrow).open();
-                cir.setReturnValue(ItemInteractionResult.SUCCESS);
+                cir.setReturnValue(InteractionResult.SUCCESS);
             }
             else
             {
-                cir.setReturnValue(ItemInteractionResult.FAIL);
+                cir.setReturnValue(InteractionResult.FAIL);
             }
         }
 
         // This must succeed in Remote to stop more right click interactions like placing blocks
-        cir.setReturnValue(ItemInteractionResult.SUCCESS);
+        cir.setReturnValue(InteractionResult.SUCCESS);
     }
 
 }

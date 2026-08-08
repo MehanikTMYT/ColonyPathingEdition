@@ -5,11 +5,12 @@ import com.minecolonies.api.colony.GraveData;
 import com.minecolonies.api.colony.IGraveData;
 import com.minecolonies.api.tileentities.AbstractTileEntityNamedGrave;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -45,20 +46,19 @@ public abstract class AbstractTileEntityNamedGraveMixin extends BlockEntity impl
     }
 
     @Inject(method = "saveAdditional", at = @At("TAIL"))
-    public void saveAdditional(CompoundTag compound, HolderLookup.Provider provider, CallbackInfo ci) {
+    public void saveAdditional(ValueOutput output, CallbackInfo ci) {
         if (graveData != null) {
-            compound.put(TAG_GRAVE_DATA, graveData.write());
+            output.store(TAG_GRAVE_DATA, CompoundTag.CODEC, graveData.write());
         }
     }
 
     @Inject(method = "loadAdditional", at = @At("TAIL"))
-    public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider, CallbackInfo ci) {
-        if (compound.contains(TAG_GRAVE_DATA)) {
-            graveData = new GraveData();
-            graveData.read(compound.getCompound(TAG_GRAVE_DATA));
-        } else {
-            graveData = null;
-        }
+    public void loadAdditional(ValueInput input, CallbackInfo ci) {
+        graveData = input.read(TAG_GRAVE_DATA, CompoundTag.CODEC).map(tag -> {
+            GraveData data = new GraveData();
+            data.read(tag);
+            return (IGraveData) data;
+        }).orElse(null);
     }
 
 }

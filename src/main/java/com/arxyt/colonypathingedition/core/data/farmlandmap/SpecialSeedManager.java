@@ -1,14 +1,15 @@
 package com.arxyt.colonypathingedition.core.data.farmlandmap;
 
 import com.arxyt.colonypathingedition.ColonyPathingEdition;
+import com.arxyt.colonypathingedition.core.costants.AdditionalContants;
 import com.arxyt.colonypathingedition.core.network.message.SpecialSeedSyncMessage;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -32,7 +33,7 @@ public class SpecialSeedManager {
 
         ColonyPathingEdition.LOGGER.info(
                 "[SpecialSeeds] Syncing seed data to {}",
-                player.getGameProfile().getName()
+                player.getGameProfile().name()
         );
 
         new SpecialSeedSyncMessage(FarmlandMapLoader.getMappings())
@@ -40,15 +41,18 @@ public class SpecialSeedManager {
     }
 
     @SubscribeEvent
-    public static void onAddReloadListener(AddReloadListenerEvent event) {
-        event.addListener(FarmlandMapLoader.INSTANCE);
+    public static void onAddReloadListener(AddServerReloadListenersEvent event) {
+        event.addListener(
+                Identifier.fromNamespaceAndPath(AdditionalContants.MOD_ID, "farmland_map"),
+                FarmlandMapLoader.INSTANCE
+        );
         if (ServerLifecycleHooks.getCurrentServer() != null) {
             new SpecialSeedSyncMessage(FarmlandMapLoader.getMappings()).syncToAll();
         }
     }
 
     public static void rebuildFromMappings(
-            Map<ResourceLocation, ResourceLocation> mappings) {
+            Map<Identifier, Identifier> mappings) {
 
         ColonyPathingEdition.LOGGER.info("[SpecialSeeds] Rebuilding mappings...");
 
@@ -56,8 +60,8 @@ public class SpecialSeedManager {
 
         for (var entry : mappings.entrySet()) {
 
-            Item seed = BuiltInRegistries.ITEM.get(entry.getKey());
-            Block soil = BuiltInRegistries.BLOCK.get(entry.getValue());
+            Item seed = BuiltInRegistries.ITEM.getValue(entry.getKey());
+            Block soil = BuiltInRegistries.BLOCK.getValue(entry.getValue());
 
             if (seed == Items.AIR) {
                 ColonyPathingEdition.LOGGER.info("[SpecialSeeds] No seed {}", entry.getKey());

@@ -35,12 +35,12 @@ public abstract class AbstractEntityAIGuardMixinForFleeAndRegen implements Abstr
     @Overwrite(remap = false)
     private IAIState flee()
     {
-        if (!getWorker().hasEffect(MobEffects.MOVEMENT_SPEED))
+        if (!getWorker().hasEffect(MobEffects.SPEED))
         {
             final double effect = Objects.requireNonNull(getWorker().getCitizenColonyHandler().getColonyOrRegister()).getResearchManager().getResearchEffects().getEffectStrength(FLEEING_SPEED);
             if (effect > 0)
             {
-                getWorker().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 200, (int) (0 + effect)));
+                getWorker().addEffect(new MobEffectInstance(MobEffects.SPEED, 200, (int) (0 + effect)));
             }
         }
         final IColony colony = getWorker().getCitizenData().getColony();

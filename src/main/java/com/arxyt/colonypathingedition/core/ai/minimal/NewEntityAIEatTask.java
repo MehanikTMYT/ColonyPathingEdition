@@ -291,9 +291,9 @@ public class NewEntityAIEatTask implements IStateAI {
         }
         if (!EntityNavigationUtils.walkToBuilding(citizen, buildingToGo)) {
             // adding some speed if starved.
-            MobEffectInstance effectInstance = citizen.getEffect(MobEffects.MOVEMENT_SLOWDOWN);
+            MobEffectInstance effectInstance = citizen.getEffect(MobEffects.SLOWNESS);
             if(effectInstance != null){
-                citizen.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,effectInstance.getDuration(),3));
+                citizen.addEffect(new MobEffectInstance(MobEffects.SPEED,effectInstance.getDuration(),3));
             }
             citizen.getCitizenAI().setCurrentDelay(WALKING_DELAY);
             return GO_TO_HUT;
@@ -345,9 +345,9 @@ public class NewEntityAIEatTask implements IStateAI {
             else if (!EntityNavigationUtils.walkToBuilding(citizen, building))
             {
                 // adding some speed if starved.
-                MobEffectInstance effectInstance = citizen.getEffect(MobEffects.MOVEMENT_SLOWDOWN);
+                MobEffectInstance effectInstance = citizen.getEffect(MobEffects.SLOWNESS);
                 if(effectInstance != null){
-                    citizen.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,effectInstance.getDuration(),3));
+                    citizen.addEffect(new MobEffectInstance(MobEffects.SPEED,effectInstance.getDuration(),3));
                 }
             }
         }
@@ -562,9 +562,9 @@ public class NewEntityAIEatTask implements IStateAI {
         }
         if (!EntityNavigationUtils.walkToBuilding(citizen, buildingToGo)) {
             // adding some speed if starved.
-            MobEffectInstance effectInstance = citizen.getEffect(MobEffects.MOVEMENT_SLOWDOWN);
+            MobEffectInstance effectInstance = citizen.getEffect(MobEffects.SLOWNESS);
             if(effectInstance != null){
-                citizen.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,effectInstance.getDuration(),3));
+                citizen.addEffect(new MobEffectInstance(MobEffects.SPEED,effectInstance.getDuration(),3));
             }
             citizen.getCitizenAI().setCurrentDelay(WALKING_DELAY);
             return GO_TO_PLACE_WITH_FOOD;
@@ -627,7 +627,7 @@ public class NewEntityAIEatTask implements IStateAI {
         citizen.setItemInHand(InteractionHand.MAIN_HAND, foodStack);
 
         citizen.swing(InteractionHand.MAIN_HAND);
-        citizen.playSound(SoundEvents.GENERIC_EAT, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(citizen.getRandom()));
+        citizen.playSound(SoundEvents.GENERIC_EAT.value(), (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(citizen.getRandom()));
         new ItemParticleEffectMessage(foodStack.copy(), citizen.getX(), citizen.getY(), citizen.getZ(), citizen.getXRot(), citizen.getYRot(), citizen.getEyeHeight()).sendToTrackingEntity(citizen);
 
         if (++waitingTicks < REQUIRED_TIME_TO_EAT)

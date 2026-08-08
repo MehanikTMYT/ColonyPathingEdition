@@ -5,7 +5,7 @@ import com.arxyt.colonypathingedition.core.config.enums.BuilderModeEnum;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.util.FoodUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -449,8 +449,8 @@ public class PathingConfig {
         if(!list.isEmpty()){
             for (String itemString : list) {
                 try {
-                    ResourceLocation rl = ResourceLocation.parse(itemString);
-                    Item item = BuiltInRegistries.ITEM.get(rl);
+                    Identifier rl = Identifier.parse(itemString);
+                    Item item = BuiltInRegistries.ITEM.getValue(rl);
                     if (item != Items.AIR) {
                         ItemStack itemStack = new ItemStack(item);
                         if(FoodUtils.EDIBLE.test(itemStack)) {

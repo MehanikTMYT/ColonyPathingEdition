@@ -113,7 +113,7 @@ public abstract class PathfindingUtilsMixin {
             bs = down;
             down = level.getBlockState(pos.below());
 
-            if (pos.getY() < entity.getCommandSenderWorld().getMinBuildHeight())
+            if (pos.getY() < entity.level().getMinY())
             {
                 return entity.blockPosition();
             }

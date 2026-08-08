@@ -4,7 +4,7 @@ import com.arxyt.colonypathingedition.api.network.ICPEMessage;
 import com.arxyt.colonypathingedition.core.data.farmlandmap.SpecialSeedManager;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,9 +19,9 @@ public class SpecialSeedSyncMessage implements ICPEMessage<SpecialSeedSyncMessag
     public static final StreamCodec<RegistryFriendlyByteBuf, SpecialSeedSyncMessage> CODEC =
             ICPEMessage.streamCodec(SpecialSeedSyncMessage::new);
 
-    private final Map<ResourceLocation, ResourceLocation> mappings;
+    private final Map<Identifier, Identifier> mappings;
 
-    public SpecialSeedSyncMessage(Map<ResourceLocation, ResourceLocation> mappings) {
+    public SpecialSeedSyncMessage(Map<Identifier, Identifier> mappings) {
         this.mappings = mappings;
     }
 
@@ -32,8 +32,8 @@ public class SpecialSeedSyncMessage implements ICPEMessage<SpecialSeedSyncMessag
         this.mappings = new HashMap<>(size);
 
         for (int i = 0; i < size; i++) {
-            ResourceLocation seed = buf.readResourceLocation();
-            ResourceLocation soil = buf.readResourceLocation();
+            Identifier seed = buf.readIdentifier();
+            Identifier soil = buf.readIdentifier();
             mappings.put(seed, soil);
         }
     }
@@ -44,8 +44,8 @@ public class SpecialSeedSyncMessage implements ICPEMessage<SpecialSeedSyncMessag
         buf.writeInt(mappings.size());
 
         mappings.forEach((seed, soil) -> {
-            buf.writeResourceLocation(seed);
-            buf.writeResourceLocation(soil);
+            buf.writeIdentifier(seed);
+            buf.writeIdentifier(soil);
         });
     }
 

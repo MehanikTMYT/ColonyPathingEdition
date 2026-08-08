@@ -32,7 +32,7 @@ import com.minecolonies.core.tileentities.TileEntityRack;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -73,7 +73,7 @@ public class NewEntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeli
      * Delivery icon
      */
     private final static VisibleCitizenStatus DELIVERING =
-            new VisibleCitizenStatus(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/delivery.png"), "com.minecolonies.gui.visiblestatus.delivery");
+            new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/delivery.png"), "com.minecolonies.gui.visiblestatus.delivery");
 
     /**
      * Render meta backpack.

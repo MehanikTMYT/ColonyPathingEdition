@@ -19,7 +19,7 @@ import com.minecolonies.core.items.ItemCrop;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.biome.Biome;
@@ -77,7 +77,7 @@ public class WindowCropRotation extends AbstractWindowSkeleton {
      */
     public WindowCropRotation(@NotNull AbstractTileEntityScarecrow tileEntityScarecrow, @NotNull FarmField farmField, @Nullable final BOWindow parent)
     {
-        super(parent, ResourceLocation.parse(ColonyPathingEdition.MODID + WINDOW_RESOURCE));
+        super(parent, Identifier.parse(ColonyPathingEdition.MODID + WINDOW_RESOURCE));
         this.tileEntityScarecrow = tileEntityScarecrow;
         this.farmField = farmField;
         accessFieldData();

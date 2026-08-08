@@ -241,7 +241,7 @@ public abstract class EntityAIStructureBuilderMixin extends AbstractEntityAIStru
     @Inject(at = @At("RETURN"),method = "sendCompletionMessage", remap = false)
     protected void pickUpAfterSendCompletionMessage(CallbackInfo ci) {
         if (building.getPickUpPriority() > 0) {
-            building.createPickupRequest(building.getPickUpPriority());
+            building.createPickupRequest(building.getPickUpPriority(), false);
         }
     }
 

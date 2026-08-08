@@ -6,8 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtOps;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -61,12 +60,12 @@ public abstract class BuildingConcreteMixerMixin implements BuildingConcreteMixe
     private void deserializeNBTAddition (HolderLookup.Provider provider, CompoundTag compound, CallbackInfo ci){
         simulatedBlocks.clear();
 
-        final ListTag simMapList = compound.getList(CONCRETE_MIXER_SIMULATED_BLOCKS, Tag.TAG_COMPOUND);
+        final ListTag simMapList = compound.getListOrEmpty(CONCRETE_MIXER_SIMULATED_BLOCKS);
         for (int i = 0; i < simMapList.size(); i++)
         {
-            final CompoundTag simCompound = simMapList.getCompound(i);
-            final BlockPos pos = NbtUtils.readBlockPos(simCompound.getCompound(CONCRETE_MIXER_SIMULATED_POS),CONCRETE_MIXER_SIMULATED_POS).orElse(null);
-            final int count = simCompound.getInt(CONCRETE_MIXER_SIMULATED_COUNT);
+            final CompoundTag simCompound = simMapList.getCompoundOrEmpty(i);
+            final BlockPos pos = BlockPos.CODEC.parse(NbtOps.INSTANCE, simCompound.get(CONCRETE_MIXER_SIMULATED_POS)).result().orElse(null);
+            final int count = simCompound.getIntOr(CONCRETE_MIXER_SIMULATED_COUNT, 0);
             simulatedBlocks.put(pos, count);
         }
     }
@@ -81,7 +80,7 @@ public abstract class BuildingConcreteMixerMixin implements BuildingConcreteMixe
             // 🔑 这里做过滤：只把合适的方块位置加入 map
             if (isValidWaterPos(entry.getKey()))  // 你可以换成自己的判定条件
             {
-                simCompound.put(CONCRETE_MIXER_SIMULATED_POS, NbtUtils.writeBlockPos(entry.getKey()));
+                simCompound.put(CONCRETE_MIXER_SIMULATED_POS, BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, entry.getKey()).getOrThrow());
                 simCompound.putInt(CONCRETE_MIXER_SIMULATED_COUNT, entry.getValue());
                 simMap.add(simCompound);
             }

@@ -7,7 +7,7 @@ import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.crafting.ItemStorage;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -41,9 +41,9 @@ public class FoodBlackListMenuModuleView extends AbstractBuildingModuleView {
     }
 
     @Override
-    public ResourceLocation getIconResourceLocation()
+    public Identifier getIconResourceLocation()
     {
-        return ResourceLocation.fromNamespaceAndPath(ColonyPathingEdition.MODID, "textures/gui/modules/black_list.png");
+        return Identifier.fromNamespaceAndPath(ColonyPathingEdition.MODID, "textures/gui/modules/black_list.png");
     }
 
     @Override

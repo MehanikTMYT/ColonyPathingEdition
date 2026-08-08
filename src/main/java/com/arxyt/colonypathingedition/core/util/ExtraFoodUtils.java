@@ -14,6 +14,7 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingDeliveryma
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingWareHouse;
 import com.minecolonies.core.tileentities.TileEntityRack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -38,8 +39,8 @@ public class ExtraFoodUtils {
         if (lastFood != food){
             final boolean isMinecolfood = food instanceof IMinecoloniesFoodItem;
             final int lastLocalScore = foodHandler.checkLastEaten(food);
-            FoodProperties foodProperties = food.getFoodProperties(new ItemStack(food),null);
-            FoodProperties lastFoodProperties = lastFood == null ? null : lastFood.getFoodProperties(new ItemStack(lastFood),null);
+            FoodProperties foodProperties = new ItemStack(food).get(DataComponents.FOOD);
+            FoodProperties lastFoodProperties = lastFood == null ? null : new ItemStack(lastFood).get(DataComponents.FOOD);
             final boolean isLastMinecolfood = lastFood instanceof IMinecoloniesFoodItem;
             final float thisDensity = foodProperties == null ? 0 : foodProperties.saturation() / foodProperties.nutrition();
             final float lastDensity = lastFoodProperties == null ? 0 : lastFoodProperties.saturation() / lastFoodProperties.nutrition();
@@ -61,8 +62,8 @@ public class ExtraFoodUtils {
         if (lastFood != food){
             final boolean isMinecolfood = food instanceof IMinecoloniesFoodItem;
             final int lastLocalScore = foodHandler.checkLastEaten(food);
-            FoodProperties foodProperties = food.getFoodProperties(new ItemStack(food),null);
-            FoodProperties lastFoodProperties = lastFood == null ? null : lastFood.getFoodProperties(new ItemStack(lastFood),null);
+            FoodProperties foodProperties = new ItemStack(food).get(DataComponents.FOOD);
+            FoodProperties lastFoodProperties = lastFood == null ? null : new ItemStack(lastFood).get(DataComponents.FOOD);
             final boolean isLastMinecolfood = lastFood instanceof IMinecoloniesFoodItem;
             final float thisDensity = foodProperties == null ? 0 : foodProperties.saturation() / foodProperties.nutrition();
             final float lastDensity = lastFoodProperties == null ? 0 : lastFoodProperties.saturation() / lastFoodProperties.nutrition();

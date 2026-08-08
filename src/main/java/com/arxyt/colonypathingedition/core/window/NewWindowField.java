@@ -21,7 +21,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -84,7 +84,7 @@ public class NewWindowField extends AbstractWindowSkeleton {
      */
     public NewWindowField(@NotNull TileEntityScarecrow tileEntityScarecrow)
     {
-        super(ResourceLocation.fromNamespaceAndPath(ColonyPathingEdition.MODID, "gui/windowfield.xml"));
+        super(Identifier.fromNamespaceAndPath(ColonyPathingEdition.MODID, "gui/windowfield.xml"));
         this.tileEntityScarecrow = tileEntityScarecrow;
 
         registerButton(SELECT_SEED_BUTTON_ID, this::selectSeed);

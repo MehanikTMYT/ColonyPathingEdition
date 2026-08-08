@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -38,7 +39,7 @@ import java.util.List;
 @Mixin(value = AbstractBuilding.class, remap = false)
 public abstract class AbstractBuildingMixin extends AbstractBuildingContainer {
 
-    @Shadow(remap = false) public int pickUpDay;
+    @Unique private int pickUpDay = -1;
     @Shadow(remap = false) protected List<IBuildingModule> modules;
     @Shadow(remap = false) private String customName;
 
@@ -66,7 +67,7 @@ public abstract class AbstractBuildingMixin extends AbstractBuildingContainer {
     @Inject(method = "deserializeNBT(Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/nbt/CompoundTag;)V",at = @At("RETURN"),remap = false)
     private void deserializeNBTAddition (HolderLookup.Provider provider, CompoundTag compound, CallbackInfo ci) {
         if(compound.contains("pick_up_day")) {
-            pickUpDay = compound.getInt("pick_up_day");
+            pickUpDay = compound.getIntOr("pick_up_day", pickUpDay);
         }
     }
 
@@ -78,7 +79,7 @@ public abstract class AbstractBuildingMixin extends AbstractBuildingContainer {
     }
 
     @Inject(method = "createPickupRequest",at = @At("RETURN"),remap = false)
-    private void resetPickUpDay (final int pickUpPrio, CallbackInfoReturnable<Boolean> cir) {
+    private void resetPickUpDay (final int pickUpPrio, final boolean force, CallbackInfoReturnable<Boolean> cir) {
         if(pickUpDay == -1){
             int daysToPickup = 10 - pickUpPrio;
             pickUpDay = colony.getDay() + daysToPickup;

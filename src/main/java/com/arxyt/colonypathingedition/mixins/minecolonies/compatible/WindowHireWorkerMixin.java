@@ -10,7 +10,7 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractWindowSkeleton;
 import com.minecolonies.core.client.gui.WindowHireWorker;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,7 +31,7 @@ public abstract class WindowHireWorkerMixin extends AbstractWindowSkeleton{
 
     public WindowHireWorkerMixin()
     {
-        super(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowhireworker.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowhireworker.xml"));
     }
 
     /**
@@ -51,7 +51,7 @@ public abstract class WindowHireWorkerMixin extends AbstractWindowSkeleton{
             }
 
             final ButtonImage jobButton = new ButtonImage();
-            jobButton.setImage(ResourceLocation.parse("minecolonies:textures/gui/builderhut/builder_button_medium.png"));
+            jobButton.setImage(Identifier.parse("minecolonies:textures/gui/builderhut/builder_button_medium.png"));
             jobButton.setPosition(xOffset, 30);
             if (!hireModule.getAssignedCitizens().isEmpty())
             {

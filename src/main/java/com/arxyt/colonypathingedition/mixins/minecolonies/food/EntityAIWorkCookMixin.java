@@ -167,7 +167,7 @@ public abstract class EntityAIWorkCookMixin extends AbstractEntityAIBasicMixin<B
             getWorker().getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(POOR_RESTAURANT_INTERACTION), ChatPriority.BLOCKING));
         }
 
-        String foodName = getWorker().getInventoryCitizen().getStackInSlot(foodSlot).getDescriptionId();
+        Component foodName = getWorker().getInventoryCitizen().getStackInSlot(foodSlot).getItemName();
         int qty = (int) (Math.max(1.0, (FULL_SATURATION - citizen.getCitizenData().getSaturation()) / FoodUtils.getFoodValue(getWorker().getInventoryCitizen().getStackInSlot(foodSlot), citizen)));
         if (InventoryUtils.transferXOfItemStackIntoNextFreeSlotInItemHandler(getWorker().getInventoryCitizen(), foodSlot, qty, citizenData.getInventory())) {
             ((BuildingCookExtra)building).deleteCustomer(citizen.getCivilianID());

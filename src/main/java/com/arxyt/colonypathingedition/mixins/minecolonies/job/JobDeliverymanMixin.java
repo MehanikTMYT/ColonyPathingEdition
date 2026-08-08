@@ -21,7 +21,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,7 +41,7 @@ public abstract class JobDeliverymanMixin extends AbstractJob<EntityAIWorkDelive
     @Shadow(remap = false) protected abstract LinkedList<IToken<?>> getTaskQueueFromDataStore();
     @Shadow(remap = false) public abstract IWareHouse findWareHouse();
     @Shadow(remap = false) protected abstract boolean haveTasksSameSourceAndDest(@NotNull Delivery requestA, @NotNull Delivery requestB);
-    @Shadow(remap = false) public abstract boolean hasSameDestinationDelivery(@NotNull IRequest<? extends Delivery> request);
+    @Shadow(remap = false) public abstract List<IRequest<? extends Delivery>> getTaskListWithSameDestination(@NotNull IRequest<? extends Delivery> request);
 
     public JobDeliverymanMixin(final ICitizenData entity)
     {
@@ -182,10 +181,12 @@ public abstract class JobDeliverymanMixin extends AbstractJob<EntityAIWorkDelive
     }
 
     /**
-     * @author ARxyt
-     * @reason Use queue like a stack, result in wrong sending order.
+     * MineColonies no longer routes task-queue insertion through an overridable method (its own
+     * internal call sites now push directly onto the LinkedList), so there is nothing left to
+     * @Overwrite here. This is CPE's own priority-aware insertion helper, used only by the calls
+     * to addRequest(...) elsewhere in this same mixin.
      */
-    @Overwrite(remap = false)
+    @Unique
     @SuppressWarnings(UNCHECKED)
     public void addRequest(@NotNull final IToken<?> token, final int insertionIndex)
     {
@@ -250,7 +251,7 @@ public abstract class JobDeliverymanMixin extends AbstractJob<EntityAIWorkDelive
                     request = reqId;
                     reqsToRemove.add(reqId);
                 }
-                else if (localRequest instanceof StandardRequests.DeliveryRequest && hasSameDestinationDelivery(localRequest))
+                else if (localRequest instanceof StandardRequests.DeliveryRequest && !getTaskListWithSameDestination((IRequest<? extends Delivery>) localRequest).isEmpty())
                 {
                     addRequest(reqId, 0);
                     extendedReqs++;

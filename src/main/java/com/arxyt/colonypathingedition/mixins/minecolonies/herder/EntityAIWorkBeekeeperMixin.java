@@ -19,7 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.animal.bee.Bee;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
@@ -98,7 +98,7 @@ public abstract class EntityAIWorkBeekeeperMixin extends AbstractEntityAIInterac
         final List<Bee> bees = searchForAnimals(world, building);
         for(Bee bee : bees){
             CompoundTag tag = bee.getPersistentData();
-            if (!tag.getBoolean("ColonyPathingEdition_Penned")) {
+            if (!tag.getBooleanOr("ColonyPathingEdition_Penned", false)) {
                 tag.putBoolean("ColonyPathingEdition_Penned", true);
             }
         }

@@ -369,7 +369,7 @@ public abstract class EntityAIWorkHealerMixin extends AbstractEntityAIBasicMixin
 
         progressTicks = 0;
         citizen.addEffect(new MobEffectInstance(MobEffects.REGENERATION,20 + invokeGetSecondarySkillLevel() * 2,getBuilding().getBuildingLevel()));
-        citizen.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,20 + invokeGetSecondarySkillLevel() * 2,2));
+        citizen.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,20 + invokeGetSecondarySkillLevel() * 2,2));
         citizen.addEffect(new MobEffectInstance(MobEffects.ABSORPTION,20 + invokeGetSecondarySkillLevel() * 2,1 + invokeGetPrimarySkillLevel() / 8));
         recordTreatmentStats(citizen);
         getWorker().getCitizenExperienceHandler().addExperience(BASE_XP_GAIN);
@@ -400,7 +400,7 @@ public abstract class EntityAIWorkHealerMixin extends AbstractEntityAIBasicMixin
 
         playerToHeal.heal(2 + 2 * building.getBuildingLevel());
         playerToHeal.addEffect(new MobEffectInstance(MobEffects.REGENERATION,20 + invokeGetSecondarySkillLevel() * 2,getBuilding().getBuildingLevel()));
-        playerToHeal.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,20 + invokeGetSecondarySkillLevel() * 2,2));
+        playerToHeal.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,20 + invokeGetSecondarySkillLevel() * 2,2));
         getWorker().getCitizenExperienceHandler().addExperience(1);
         ((BuildingHospitalExtra)building).resetHealerCuringPlayer();
         return DECIDE;

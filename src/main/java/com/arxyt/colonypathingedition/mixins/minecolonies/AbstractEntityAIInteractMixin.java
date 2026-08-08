@@ -98,13 +98,13 @@ public abstract class AbstractEntityAIInteractMixin <J extends AbstractJob<?, J>
             }
         }
 
-        MobEffectInstance haste = worker.getEffect(MobEffects.DIG_SPEED);
+        MobEffectInstance haste = worker.getEffect(MobEffects.HASTE);
         if (haste != null) {
             int level = haste.getAmplifier() + 1;
             destroySpeed *= 1.0F + 0.2F * level;
         }
 
-        MobEffectInstance fatigue = worker.getEffect(MobEffects.DIG_SLOWDOWN);
+        MobEffectInstance fatigue = worker.getEffect(MobEffects.MINING_FATIGUE);
         if (fatigue != null) {
             int level = fatigue.getAmplifier() + 1;
             destroySpeed *= Math.max(0.05F, 1.0F - 0.2F * level);

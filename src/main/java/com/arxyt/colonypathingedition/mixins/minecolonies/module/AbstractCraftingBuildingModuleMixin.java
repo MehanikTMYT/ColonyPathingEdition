@@ -13,7 +13,7 @@ import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingMo
 import com.minecolonies.core.colony.crafting.CustomRecipe;
 import com.minecolonies.core.colony.crafting.CustomRecipeManager;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,7 +31,7 @@ public abstract class AbstractCraftingBuildingModuleMixin extends AbstractBuildi
     @Shadow(remap = false) private boolean recipesDirty;
     @Shadow(remap = false) @Final protected List<IToken<?>> recipes;
     @Shadow(remap = false) protected abstract boolean isRecipeCompatibleWithCraftingModule(IToken<?> token);
-    @Shadow(remap = false) protected abstract boolean isPreTaughtRecipe(IRecipeStorage storage, Map<ResourceLocation, CustomRecipe> crafterRecipes);
+    @Shadow(remap = false) protected abstract boolean isPreTaughtRecipe(IRecipeStorage storage, Map<Identifier, CustomRecipe> crafterRecipes);
     @Shadow(remap = false) @Final protected List<IToken<?>> disabledRecipes;
     @Shadow(remap = false) protected abstract int getMaxRecipes();
     @Shadow(remap = false) protected abstract int getActiveRecipes();
@@ -63,7 +63,7 @@ public abstract class AbstractCraftingBuildingModuleMixin extends AbstractBuildi
             final List<IRecipeStorage> activePreTaughtStorages = new ArrayList<>();
             final List<IRecipeStorage> disabledStorages = new ArrayList<>();
             final List<IRecipeStorage> disabledPreTaughtStorages = new ArrayList<>();
-            final Map<ResourceLocation, CustomRecipe> crafterRecipes = CustomRecipeManager.getInstance().getAllRecipes().getOrDefault(getCustomRecipeKey(), Collections.emptyMap());
+            final Map<Identifier, CustomRecipe> crafterRecipes = CustomRecipeManager.getInstance().getAllRecipes().getOrDefault(getCustomRecipeKey(), Collections.emptyMap());
             for (final IToken<?> token : new ArrayList<>(recipes))
             {
                 final IRecipeStorage storage = IColonyManager.getInstance().getRecipeManager().getRecipes().get(token);

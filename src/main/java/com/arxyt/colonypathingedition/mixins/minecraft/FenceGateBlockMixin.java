@@ -18,16 +18,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Map;
+
 @Mixin(FenceGateBlock.class)
 public abstract class FenceGateBlockMixin extends HorizontalDirectionalBlock {
 
     @Shadow
     @Final
-    protected static VoxelShape Z_COLLISION_SHAPE;
-
-    @Shadow
-    @Final
-    protected static VoxelShape X_COLLISION_SHAPE;
+    private static Map<Direction.Axis, VoxelShape> SHAPE_COLLISION;
 
     public FenceGateBlockMixin(Properties props) {
         super(props);
@@ -45,6 +43,6 @@ public abstract class FenceGateBlockMixin extends HorizontalDirectionalBlock {
         Entity entity = ecc.getEntity();
         if (!(entity instanceof Animal animal)) return;
 
-        if (animal.getPersistentData().getBoolean("ColonyPathingEdition_Penned")) cir.setReturnValue(pState.getValue(FACING).getAxis() == Direction.Axis.Z ? Z_COLLISION_SHAPE : X_COLLISION_SHAPE);
+        if (animal.getPersistentData().getBooleanOr("ColonyPathingEdition_Penned", false)) cir.setReturnValue(SHAPE_COLLISION.get(pState.getValue(FACING).getAxis()));
     }
 }
