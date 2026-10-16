@@ -99,7 +99,6 @@ public abstract class MovementHandlerMixin extends MoveControl {
             {
                 if (yDif != 0.0D)
                 {
-
                     this.mob.setDeltaMovement(this.mob.getDeltaMovement().add(0, (double) this.mob.getSpeed() * ((yDif + 0.3) / d3) * 0.1D, 0));
                 }
 
@@ -107,6 +106,13 @@ public abstract class MovementHandlerMixin extends MoveControl {
             }
 
             if (mob.getVehicle() == null) {
+                // handle water and ladder, that's definitely a better handler to not use jumpCoolDown at these cases.
+                if (yDif > 0 && (mob.isInWater() || !mob.onGround())) {
+                    this.mob.getJumpControl().jump();
+                    this.operation = net.minecraft.world.entity.ai.control.MoveControl.Operation.JUMPING;
+                    jumpCoolDown = 0;
+                    return;
+                }
                 final Block block = blockstate.getBlock();
                 final VoxelShape voxelshape = blockstate.getCollisionShape(this.mob.level(), blockpos);
                 if (yDif > (double) stepHeight) {
@@ -145,7 +151,7 @@ public abstract class MovementHandlerMixin extends MoveControl {
         {
             this.mob.setSpeed((float) (this.speedModifier * speedValue));
 
-            // Avoid beeing stuck in jumping while in liquids
+            // Avoid being stuck in jumping while in liquids
             final BlockPos blockpos = this.mob.blockPosition();
             final BlockState blockstate = this.mob.level().getBlockState(blockpos);
             if (this.mob.onGround() || blockstate.liquid())

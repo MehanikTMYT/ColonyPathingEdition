@@ -1,5 +1,6 @@
 package com.arxyt.colonypathingedition.core.ai.worker;
 
+import com.arxyt.colonypathingedition.api.extras.FarmFieldExtra;
 import com.arxyt.colonypathingedition.core.data.farmlandmap.SpecialSeedManager;
 import com.arxyt.colonypathingedition.core.data.tag.ModTag;
 import com.google.common.reflect.TypeToken;
@@ -11,7 +12,6 @@ import com.minecolonies.api.entity.ai.JobStatus;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
 import com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
-import com.minecolonies.api.entity.ai.statemachine.states.IState;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.entity.citizen.VisibleCitizenStatus;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
@@ -117,11 +117,15 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
      */
     private int repeatTime = 0;
 
-
     /**
      * If we return to a working state after pick up.
      */
     private AIWorkerState withSpecialReturn = START_WORKING;
+
+    /**
+     * If we have seeds underWater in the rotation.
+     */
+    private boolean rotationWithWater = false;
 
     /**
      * If the farmland is normal.
@@ -289,6 +293,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
                 setDelay(5);
                 return decideState;
             }
+            rotationWithWater = ((FarmFieldExtra)farmField).isRotationWithWaterField();
             IAIState state = checkNextWorkspaceAndState(farmField,
                     pos -> this.newFindHarvestableSurface(pos, farmField) != null,
                     pos -> this.newFindHoeableSurface(pos, farmField) != null,
@@ -783,7 +788,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
                     || (world.getBlockState(position.above()).getBlock() instanceof BushBlock)
                     || (world.getBlockState(position.above()).getBlock() instanceof BlockScarecrow)
                     || (blockState.getBlock() == farmland)
-                    || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
+                    || (!(blockState.is(BlockTags.DIRT) || (rotationWithWater && blockState.is(Blocks.WATER)) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
                     || (world.getBlockState(position.above()).getBlock() instanceof MinecoloniesCropBlock)
             )
             {
@@ -801,7 +806,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
                     || (world.getBlockState(position.above()).getBlock() instanceof CropBlock)
                     || (world.getBlockState(position.above()).getBlock() instanceof BushBlock)
                     || (world.getBlockState(position.above()).getBlock() instanceof BlockScarecrow)
-                    || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
+                    || (!(blockState.is(BlockTags.DIRT) || (rotationWithWater && blockState.is(Blocks.WATER)) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
                     || (world.getBlockState(position.above()).getBlock() instanceof MinecoloniesCropBlock)
             )
             {
@@ -822,7 +827,7 @@ public class NewEntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, B
                 || (world.getBlockState(position.above()).getBlock() instanceof CropBlock)
                 || (world.getBlockState(position.above()).getBlock() instanceof BushBlock)
                 || (world.getBlockState(position.above()).getBlock() instanceof BlockScarecrow)
-                || (!(blockState.is(BlockTags.DIRT) || blockState.is(Blocks.WATER) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
+                || (!(blockState.is(BlockTags.DIRT) || (rotationWithWater && blockState.is(Blocks.WATER)) || SpecialSeedManager.isSpecialSoil(blockState.getBlock())) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
                 || (world.getBlockState(position.above()).getBlock() instanceof MinecoloniesCropBlock)
         )
         {

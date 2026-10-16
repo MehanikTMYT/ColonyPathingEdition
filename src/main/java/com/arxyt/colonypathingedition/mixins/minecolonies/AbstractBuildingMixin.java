@@ -1,5 +1,6 @@
 package com.arxyt.colonypathingedition.mixins.minecolonies;
 
+import com.arxyt.colonypathingedition.api.workersetting.BuildingPickupExtra;
 import com.arxyt.colonypathingedition.core.colony.module.FoodBlackListMenuModule;
 import com.arxyt.colonypathingedition.core.config.PathingConfig;
 import com.google.common.collect.ImmutableCollection;
@@ -7,9 +8,16 @@ import com.ldtteam.structurize.api.RotationMirror;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.modules.IBuildingModule;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
+import com.minecolonies.api.colony.requestsystem.request.IRequest;
+import com.minecolonies.api.colony.requestsystem.request.RequestState;
+import com.minecolonies.api.colony.requestsystem.requestable.deliveryman.Pickup;
 import com.minecolonies.api.colony.requestsystem.resolver.IRequestResolver;
+import com.minecolonies.api.colony.requestsystem.resolver.player.IPlayerRequestResolver;
+import com.minecolonies.api.colony.requestsystem.resolver.retrying.IRetryingRequestResolver;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.util.Log;
+import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.AbstractBuildingContainer;
 import net.minecraft.core.BlockPos;
@@ -23,12 +31,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,9 +47,11 @@ import java.util.List;
  * 2.当尝试发出 pick up 进程后，不要求下一次 pick up 请求仅来清理 “尝试 pick up“ 的进程堵塞问题。
  */
 @Mixin(value = AbstractBuilding.class, remap = false)
-public abstract class AbstractBuildingMixin extends AbstractBuildingContainer {
+public abstract class AbstractBuildingMixin extends AbstractBuildingContainer implements BuildingPickupExtra {
 
-    @Unique private int pickUpDay = -1;
+    @Unique public int minDayPickup = -1;
+    @Unique public int cumulatedItems = 0;
+
     @Shadow(remap = false) protected List<IBuildingModule> modules;
     @Shadow(remap = false) private String customName;
 
@@ -67,23 +79,79 @@ public abstract class AbstractBuildingMixin extends AbstractBuildingContainer {
     @Inject(method = "deserializeNBT(Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/nbt/CompoundTag;)V",at = @At("RETURN"),remap = false)
     private void deserializeNBTAddition (HolderLookup.Provider provider, CompoundTag compound, CallbackInfo ci) {
         if(compound.contains("pick_up_day")) {
-            pickUpDay = compound.getIntOr("pick_up_day", pickUpDay);
+            minDayPickup = compound.getIntOr("pick_up_day", minDayPickup);
+        }
+        if(compound.contains("cumulated_items")) {
+            // Upstream 2d57263 wrote this into minDayPickup by mistake.
+            cumulatedItems = compound.getIntOr("cumulated_items", cumulatedItems);
         }
     }
 
     @Inject(method = "serializeNBT(Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/nbt/CompoundTag;",at = @At("RETURN"),remap = false,cancellable = true)
     private void serializeNBTAddition (CallbackInfoReturnable<CompoundTag> cir) {
         CompoundTag tag = cir.getReturnValue();
-        tag.putInt("pick_up_day", pickUpDay);
+        tag.putInt("pick_up_day", minDayPickup);
+        tag.putInt("cumulated_items", cumulatedItems);
         cir.setReturnValue(tag);
     }
 
-    @Inject(method = "createPickupRequest",at = @At("RETURN"),remap = false)
-    private void resetPickUpDay (final int pickUpPrio, final boolean force, CallbackInfoReturnable<Boolean> cir) {
-        if(pickUpDay == -1){
-            int daysToPickup = 10 - pickUpPrio;
-            pickUpDay = colony.getDay() + daysToPickup;
+    // Upstream 2d57263: pickups are driven by accumulated items and a minimum day instead of a fixed pickup day.
+    @Unique
+    public int shouldPickup (final int pickUpPriority, final int qty) {
+        if(!getOpenRequestsByRequestableType().getOrDefault(TypeConstants.PICKUP, Collections.emptyList()).isEmpty()) {
+            return 15;
         }
+        cumulatedItems += qty;
+        int daysToPickup = 10 - pickUpPriority;
+
+        if(cumulatedItems >= 256 + 64 * daysToPickup ) {
+            cumulatedItems = 0;
+            minDayPickup = colony.getDay() + daysToPickup;
+            return 15;
+        }
+        if(minDayPickup < 0){
+            minDayPickup = colony.getDay() + daysToPickup;
+        }
+        else if (minDayPickup > colony.getDay() + daysToPickup)
+        {
+            minDayPickup = colony.getDay() + daysToPickup;
+        }
+
+        if (colony.getDay() < minDayPickup)
+        {
+            return 0;
+        }
+        cumulatedItems = 0;
+        minDayPickup = colony.getDay() + daysToPickup;
+        return pickUpPriority;
+    }
+
+    @Unique
+    public boolean newCreatePickupRequest(int pickUpPriority)
+    {
+        final List<IToken<?>> reqs = new ArrayList<>(getOpenRequestsByRequestableType().getOrDefault(TypeConstants.PICKUP, Collections.emptyList()));
+        if (!reqs.isEmpty())
+        {
+            for (final IToken<?> req : reqs)
+            {
+                final IRequest<?> request = colony.getRequestManager().getRequestForToken(req);
+                if (request != null && request.getState() == RequestState.IN_PROGRESS)
+                {
+                    final IRequestResolver<?> resolver = colony.getRequestManager().getResolverForRequest(req);
+                    if (resolver instanceof IPlayerRequestResolver || resolver instanceof IRetryingRequestResolver)
+                    {
+                        colony.getRequestManager().reassignRequest(req, Collections.emptyList());
+                    }
+                }
+            }
+            return false;
+        }
+
+        // 26.1 Pickup carries a due day and quantity estimate; use one stack, same day formula as upstream createPickupRequest
+        final int qty = com.minecolonies.api.util.constant.Constants.STACKSIZE;
+        final int pickUpDay = colony.getDay() + Math.max(0, (10 - pickUpPriority) - (qty / 16));
+        createRequest(new Pickup(pickUpPriority, pickUpDay, qty), true);
+        return true;
     }
 
     /**

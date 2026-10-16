@@ -1,7 +1,7 @@
 package com.arxyt.colonypathingedition.mixins.minecolonies.builder;
 
 import com.arxyt.colonypathingedition.core.config.PathingConfig;
-import com.arxyt.colonypathingedition.core.util.ExtraFoodUtils;
+import com.arxyt.colonypathingedition.core.util.NewFoodUtils;
 import com.arxyt.colonypathingedition.core.util.DistanceUtils;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
@@ -16,6 +16,10 @@ import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedP
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveCloseToXNearY;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,6 +28,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.lang.reflect.Method;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
 import static com.minecolonies.api.research.util.ResearchConstants.BLOCK_PLACE_SPEED;
@@ -50,7 +56,7 @@ public abstract class EntityAIStructureBuilderMixin extends AbstractEntityAIStru
     @Unique
     private boolean hasFood()
     {
-        return ExtraFoodUtils.getBestFoodForCitizenWithRestaurantCheck(worker.getInventoryCitizen(), worker.getCitizenData() ,null ,true) != -1;
+        return NewFoodUtils.getBestFoodForCitizenWithRestaurantCheck(worker.getInventoryCitizen(), worker.getCitizenData() ,null ,true) != -1;
     }
 
     /**
@@ -96,10 +102,10 @@ public abstract class EntityAIStructureBuilderMixin extends AbstractEntityAIStru
             return repathCounter >= 3;
         }
         BlockPos workerPos = worker.blockPosition();
-        if (!walkToSafePos(workFrom) && DistanceUtils.dist(workerPos, workFrom) >= 10 ){
+        if (!walkToSafePos(workFrom) && DistanceUtils.distLightY(workerPos, workFrom) >= 10){
             return repathCounter >= 3;
         }
-        if(DistanceUtils.dist(workPos, workFrom) >= 10){
+        if(DistanceUtils.distLightY(workPos, workFrom) >= 10){
             if(++repathCounter >= 3) {
                 return true;
             }
@@ -213,11 +219,35 @@ public abstract class EntityAIStructureBuilderMixin extends AbstractEntityAIStru
     @Override
     public IAIState doMining(){
         setDelay(1);
-        IAIState returnState = super.doMining();
-        if (returnState != getState() && returnState != BUILDING_STEP){
-            repathCounter = 0;
+        if (blockToMine == null)
+        {
+            return BUILDING_STEP;
         }
-        return returnState;
+
+        if (structurePlacer == null)
+        {
+            repathCounter = 0;
+            return IDLE;
+        }
+
+        final BlockState worldState = world.getBlockState(blockToMine);
+        if (worldState.getBlock() instanceof AirBlock || worldState.getBlock() == Blocks.WATER)
+        {
+            return BUILDING_STEP;
+        }
+
+        if (!walkToConstructionSite(blockToMine))
+        {
+            return getState();
+        }
+
+        if (!mineBlock(blockToMine, getCurrentWorkingPosition()))
+        {
+            worker.swing(InteractionHand.MAIN_HAND);
+            return getState();
+        }
+        worker.decreaseSaturationForContinuousAction();
+        return BUILDING_STEP;
     }
 
     /**
@@ -241,7 +271,8 @@ public abstract class EntityAIStructureBuilderMixin extends AbstractEntityAIStru
     @Inject(at = @At("RETURN"),method = "sendCompletionMessage", remap = false)
     protected void pickUpAfterSendCompletionMessage(CallbackInfo ci) {
         if (building.getPickUpPriority() > 0) {
-            building.createPickupRequest(building.getPickUpPriority(), false);
+            // 26.1: createPickupRequest(qty, force) — priority comes from the building itself
+            building.createPickupRequest(com.minecolonies.api.util.constant.Constants.STACKSIZE, false);
         }
     }
 

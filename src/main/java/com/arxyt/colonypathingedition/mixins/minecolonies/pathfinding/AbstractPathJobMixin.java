@@ -1,6 +1,6 @@
 package com.arxyt.colonypathingedition.mixins.minecolonies.pathfinding;
 
-import com.arxyt.colonypathingedition.api.IMNodeExtras;
+import com.arxyt.colonypathingedition.api.extras.IMNodeExtra;
 import com.arxyt.colonypathingedition.core.config.PathingConfig;
 import com.ldtteam.domumornamentum.block.decorative.*;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
@@ -17,7 +17,6 @@ import com.minecolonies.core.entity.pathfinding.pathjobs.IDestinationPathJob;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import com.minecolonies.core.entity.pathfinding.world.CachingBlockLookup;
 import com.minecolonies.core.entity.pathfinding.MNode;
-import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.util.WorkerUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
@@ -145,7 +144,7 @@ public abstract class AbstractPathJobMixin{
 
         double cost = 1;
 
-        IMNodeExtras extras = (IMNodeExtras) parent;
+        IMNodeExtra extras = (IMNodeExtra) parent;
         if (onRails) {
             cost *= pathingOptions.onRailCost;
             if (state.getBlock() instanceof PoweredRailBlock && !(state.getValue(PoweredRailBlock.POWERED)))
@@ -393,7 +392,7 @@ public abstract class AbstractPathJobMixin{
                     }
 
                     // we already at best score, return.
-                    if(bestNodeEndScore <= 1) break;
+                    if(bestNodeEndScore <= 1.25) break;
 
                     // no need to count, directly visit.
                     if (node.isVisited())
@@ -470,7 +469,7 @@ public abstract class AbstractPathJobMixin{
             return handleInLiquid(x, y, z, below, isSwimming);
         }
 
-        if (PathfindingUtils.isLadder(below, pathingOptions, x, y - 1, z, cachedBlockLookup))
+        if (PathfindingUtils.isLadder(below, pathingOptions, x, y - 1, z, cachedBlockLookup) || below.getBlock() instanceof ScaffoldingBlock)
         {
             return y;
         }
@@ -646,7 +645,9 @@ public abstract class AbstractPathJobMixin{
                 case UP -> {
                     if (node.isLadder() || node.isVisited()) {
                         exploreInDirection(node, 0, 1, 0);
-                    } else if (node.parent != null && !node.parent.isLadder() && cachedBlockLookup.getBlockState(node.x, node.y + 1, node.z).getBlock() instanceof LadderBlock) {
+                    } else if ( !cachedBlockLookup.getBlockState(node.x, node.y, node.z).getFluidState().isEmpty() ||
+                            (node.parent != null && !node.parent.isLadder() && cachedBlockLookup.getBlockState(node.x, node.y + 1, node.z).getBlock() instanceof LadderBlock))
+                    {
                         exploreInDirection(node, 0, 1, 0);
                     }
                 }
@@ -884,10 +885,10 @@ public abstract class AbstractPathJobMixin{
     @Unique
     private MNode extraNodeState(final MNode nextNode)
     {
-        IMNodeExtras extras = (IMNodeExtras) nextNode;
+        IMNodeExtra extras = (IMNodeExtra) nextNode;
         if (nextNode.isCornerNode() && nextNode.parent!=null) {
             nextNode.setHeuristic(nextNode.parent.getHeuristic());
-            IMNodeExtras extrasPre = (IMNodeExtras) nextNode.parent;
+            IMNodeExtra extrasPre = (IMNodeExtra) nextNode.parent;
             if (extrasPre.isCallbackNode()){
                 extras.setCallbackNode();
             }
@@ -942,8 +943,8 @@ public abstract class AbstractPathJobMixin{
         }
         double newHeuristic = heuristic;
         double lastHeuristic =node.getHeuristic();
-        IMNodeExtras extras = (IMNodeExtras) node;
-        IMNodeExtras extrasNext = (IMNodeExtras) nextNode;
+        IMNodeExtra extras = (IMNodeExtra) node;
+        IMNodeExtra extrasNext = (IMNodeExtra) nextNode;
         double callbackAddon = 0.0;
         if (onRails){
             heuristic *= onRailPreference;
@@ -972,7 +973,7 @@ public abstract class AbstractPathJobMixin{
     @Unique
     private void updateNode(@NotNull final MNode node, @NotNull final MNode nextNode, final double heuristic, final double cost, boolean onRails, boolean onRoad, boolean noDrop)
     {
-        IMNodeExtras extras = (IMNodeExtras) node;
+        IMNodeExtra extras = (IMNodeExtra) node;
 
         // We don't ignore any potentially low-cost nodes, only add some callback nodes to recalculate.
         if (cost >= nextNode.getCost() && !(extras.isCallbackNode() && nextNode.getVisitedCount() <= visitedLevel * callbackTimesTolerance))
@@ -997,7 +998,7 @@ public abstract class AbstractPathJobMixin{
 
         // other nodes may need to recalculate its heuristic.
         if (nextNode.isVisited()){
-            IMNodeExtras extrasNext = (IMNodeExtras) nextNode;
+            IMNodeExtra extrasNext = (IMNodeExtra) nextNode;
             if (extrasNext.isCallbackNode() && nextNode.getHeuristic() <= heuristic){
                 return;
             }
@@ -1022,10 +1023,9 @@ public abstract class AbstractPathJobMixin{
     private BlockEntity computeInitialValue() {
         Mob entity = getEntity();
         if(entity instanceof AbstractEntityCitizen citizen) {
+            if(citizen.getCitizenData() == null) return null;
             ITownHall building = citizen.getCitizenData().getColony().getServerBuildingManager().getTownHall();
-            if(building == null){
-                return null;
-            }
+            if(building == null) return null;
             BlockEntity townHall = actualWorld.getBlockEntity(building.getPosition());
             if (!(townHall instanceof IBlueprintDataProviderBE)) {
                 if (townHall == null){

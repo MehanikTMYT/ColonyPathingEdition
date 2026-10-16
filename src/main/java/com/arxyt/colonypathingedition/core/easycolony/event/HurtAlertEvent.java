@@ -13,6 +13,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
@@ -38,36 +39,51 @@ public class HurtAlertEvent {
             return;
 
         // 发出通告，说自己被锤了
-        MutableComponent message = Component.translatable(
+        final MutableComponent message = Component.translatable(
                 AdditionalContants.HURT_ALERT,
                 src.getDisplayName(),
                 (int) citizen.getX(),
                 (int) citizen.getY(),
                 (int) citizen.getZ()
-        );
-        message = message.withStyle(ChatFormatting.GOLD);
-        // 为受到攻击的市民加入荧光效果，高亮显示其位置
+        ).withStyle(ChatFormatting.GOLD);
+        // 为攻击市民的生物加入荧光效果，高亮显示其位置
         livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 15));
-        IColony colony = citizen.getCitizenColonyHandler().getColonyOrRegister();
+        final IColony colony = citizen.getCitizenColonyHandler().getColonyOrRegister();
         if (colony == null) return;
         final IJob<?> job = citizen.getCitizenJobHandler().getColonyJob();
+        final MessageUtils.MessageBuilder builder = MessageUtils.format("[")
+                .append(colony.getName())
+                .append("] ");
         if (job != null) {
-            MessageUtils.format(job.getJobRegistryEntry().getTranslationKey())
-                    .append(Component.literal(" "))
-                    .append(citizen.getCustomName())
-                    .append(Component.literal(" ("))
-                    .append(Integer.toString((int) (citizen.getHealth() - event.getNewDamage())))
-                    .append(Component.literal(" ♥): "))
-                    .append(message)
-                    .sendTo(colony.getImportantMessageEntityPlayers());
-            return;
+            builder.append(job.getJobRegistryEntry().getTranslationKey())
+                    .append(Component.literal(" "));
+
         }
-        MessageUtils.format(citizen.getCustomName())
+        builder.append(citizen.getCustomName())
                 .append(Component.literal(" ("))
                 .append(Integer.toString((int) (citizen.getHealth() - event.getNewDamage())))
-                .append(Component.literal(" ♥): "))
-                .append(message)
-                .sendTo(colony.getImportantMessageEntityPlayers());
+                .append(Component.literal(" ♥): \n"))
+                .append(message);
+
+        final MutableComponent totalMessage = builder.create();
+        for(Player player : colony.getImportantMessageEntityPlayers()) {
+            final MessageUtils.MessageBuilder builderToPlayer = MessageUtils.format(totalMessage);
+            double distanceTo = Math.sqrt(player.blockPosition().distToCenterSqr(citizen.blockPosition().getCenter()));
+            double dX = citizen.getX() - player.getX();
+            double dZ = citizen.getZ() - player.getZ();
+            int xSign = Math.abs(dX) >= distanceTo / 10 ? 3 * (dX > 0 ? 1 : -1) : 0;
+            int zSign = Math.abs(dZ) >= distanceTo / 10 ? (dZ > 0 ? 1 : -1) : 0;
+            int sign = xSign + zSign + 4;
+            if(sign != 4) {
+                MutableComponent messageDirection = Component.translatable(
+                        AdditionalContants.HURT_DIRECTION + sign,
+                        (int)distanceTo
+                ).withStyle(ChatFormatting.GREEN);
+                builderToPlayer.append("\n")
+                        .append(messageDirection);
+            }
+            builderToPlayer.sendTo(player);
+        }
         //MessageUtils.forCitizen(citizen, message).withPriority(MessageUtils.MessagePriority.IMPORTANT).sendTo(colony.getImportantMessageEntityPlayers());
     }
 

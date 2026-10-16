@@ -8,10 +8,7 @@ import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.entity.citizen.VisibleCitizenStatus;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
-import com.minecolonies.api.util.BlockPosUtil;
-import com.minecolonies.api.util.InventoryUtils;
-import com.minecolonies.api.util.ItemStackUtils;
-import com.minecolonies.api.util.StatsUtil;
+import com.minecolonies.api.util.*;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
@@ -305,38 +302,28 @@ public abstract class AbstractEntityAIHerderMixin<J extends AbstractJob<?, J>, B
     @Unique
     protected void butcherAnimalCopy(@Nullable final Animal animal)
     {
-        if (animal != null && !walkingToAnimal(animal) && !ItemStackUtils.isEmpty(worker.getMainHandItem()))
+        if (animal != null && !ItemStackUtils.isEmpty(worker.getMainHandItem()))
         {
             boolean looting = worker.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(LOOTING) > 0;
 
+            final FakePlayer fp = getFakePlayer();
+            ItemStack workerWeapon = worker.getMainHandItem();
             if (looting)
             {
-                final FakePlayer fp = getFakePlayer();
-                if (fp == null) return;
-
-                // Ensure the worker’s weapon has Looting I
-                ItemStack workerWeapon = worker.getMainHandItem();
-
                 // Temporarily mirror the weapon onto the fake player
-                ItemStack prev = fp.getMainHandItem();
                 ItemStack temp = workerWeapon.copy();
+                // Ensure the worker’s weapon has Looting I
                 ensureLootingI(temp);
                 fp.setItemInHand(InteractionHand.MAIN_HAND, temp);
-
-                try
-                {
+                try {
                     newButcherSwing(fp, animal);
-                }
-                finally
-                {
-                    // Restore whatever the fake player had (usually empty) to avoid dupes/leaks
-                    fp.setItemInHand(InteractionHand.MAIN_HAND, prev);
+                    return;
+                } catch (Exception | Error e) {
+                    Log.getLogger().warn("Butcher can't apply looting on tools! Please check or report to the author of pathfinding edition!");
                 }
             }
-            else
-            {
-                newButcherSwing(getFakePlayer(), animal);
-            }
+            fp.setItemInHand(InteractionHand.MAIN_HAND, workerWeapon);
+            newButcherSwing(fp, animal);
         }
     }
 
@@ -346,6 +333,10 @@ public abstract class AbstractEntityAIHerderMixin<J extends AbstractJob<?, J>, B
         DamageSource ds = animal.level().damageSources().playerAttack(fakePlayer);
         if(animal.level() instanceof ServerLevel serverLevel && animal.hurtServer(serverLevel, ds, PathingConfig.BUTCHER_INSTANT_KILL.get()? 999.0F : 3.0F * building.getBuildingLevel())) {
             CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
+        }
+        else {
+            animal.hurt(animal.level().damageSources().genericKill(), 999.0F);
+            Log.getLogger().warn("Butcher can't do damage to animals! Please check or report to the author of pathfinding edition!");
         }
     }
 

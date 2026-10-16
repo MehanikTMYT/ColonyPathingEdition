@@ -1,8 +1,8 @@
 package com.arxyt.colonypathingedition.core.ai.worker;
 
 import com.arxyt.colonypathingedition.api.workersetting.BuildingCookExtra;
-import com.arxyt.colonypathingedition.core.ai.minimal.NewEntityAIEatTask;
-import com.arxyt.colonypathingedition.core.util.ExtraFoodUtils;
+import com.arxyt.colonypathingedition.core.ai.minimal.NewEntityAIEat;
+import com.arxyt.colonypathingedition.core.util.NewFoodUtils;
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
@@ -164,7 +164,7 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
         }
         final int buildingLimit = Math.max(1, building.getBuildingLevel() * building.getBuildingLevel()) * SLOT_PER_LINE;
         return InventoryUtils.getCountFromBuildingWithLimit(building,
-                FoodUtils.EDIBLE.and(stack -> FoodUtils.canEatLevel(stack, building.getBuildingLevel() - 1)),
+                NewFoodUtils.EDIBLE.and(stack -> NewFoodUtils.canEatLevel(stack, building.getBuildingLevel() - 1)),
                 stack -> stack.getMaxStackSize() * 6) > buildingLimit;
     }
 
@@ -188,7 +188,7 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
      */
     private IAIState serveFoodToCitizen() {
         worker.getCitizenData().setVisibleStatus(COOK);
-
+        BuildingCookExtra buildingExtra = (BuildingCookExtra) building;
         //检查顾客格式，以请求提出顺序拿取村民所点的菜(目前为最优的单个菜系，后期可能进一步修改)
         if (checkCustomer) {
             final RestaurantMenuModule module = building.getModule(RESTAURANT_MENU);
@@ -196,15 +196,15 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
                 int citizenID = initailCitizenToServe.poll();
                 ICitizenData citizenData = building.getColony().getCitizenManager().getCivilian(citizenID);
                 if (citizenData.getEntity().isEmpty()) {
-                    ((BuildingCookExtra) building).deleteCustomer(citizenID);
+                    buildingExtra.deleteCustomer(citizenID);
                     continue;
                 }
                 AbstractEntityCitizen citizen = citizenData.getEntity().get();
                 if (building.isInBuilding(citizen.blockPosition())) {
-                    if (FoodUtils.hasBestOptionInInv(worker.getInventoryCitizen(), citizenData, module.getMenu(), building)) {
+                    if (NewFoodUtils.hasBestOptionInInv(worker.getInventoryCitizen(), citizenData, module.getMenu(), building)) {
                         citizenToServe.add(citizen);
                     } else {
-                        final ItemStorage storage = FoodUtils.checkForFoodInBuilding(citizenData, module.getMenu(), building);
+                        final ItemStorage storage = NewFoodUtils.checkForFoodInBuilding(citizenData, module.getMenu(), building);
                         if (storage != null) {
                             citizenToServe.add(citizen);
                             needsCurrently = new Tuple<>(stack -> new ItemStorage(stack).equals(storage), 16);
@@ -213,7 +213,7 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
                         }
                     }
                 } else {
-                    ((BuildingCookExtra) building).deleteCustomer(citizenID);
+                    buildingExtra.deleteCustomer(citizenID);
                 }
             }
             checkCustomer = false;
@@ -221,7 +221,7 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
 
         // Check overtime customer.
         while (!citizenToServe.isEmpty()) {
-            if (!((BuildingCookExtra) building).checkCustomerRegistry(citizenToServe.peek().getCivilianID())) {
+            if (!buildingExtra.checkCustomerRegistry(citizenToServe.peek().getCivilianID())) {
                 citizenToServe.poll();
                 continue;
             }
@@ -248,10 +248,10 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
 
         if (!handler.hasSpace()) {
             for (int feedingAttempts = 0; feedingAttempts < 10; feedingAttempts++) {
-                final int foodSlot = ExtraFoodUtils.getBestFoodForCitizenWithRestaurantCheck(worker.getInventoryCitizen(), citizenData, module.getMenu(),false);
+                final int foodSlot = NewFoodUtils.getBestFoodForCitizenWithRestaurantCheck(worker.getInventoryCitizen(), citizenData, module.getMenu(),false);
                 if (foodSlot != -1) {
                     final ItemStack stack = worker.getInventoryCitizen().extractItem(foodSlot, 1, false);
-                    citizenData.increaseSaturation(FoodUtils.getFoodValue(stack, worker));
+                    citizenData.increaseSaturation(NewFoodUtils.getFoodValue(stack, worker));
                     Objects.requireNonNull(worker.getCitizenColonyHandler().getColonyOrRegister()).getStatisticsManager().increment(FOOD_SERVED, worker.getCitizenColonyHandler().getColonyOrRegister().getDay());
                     StatsUtil.trackStatByStack(building, FOOD_SERVED_DETAIL, stack, 1);
                 } else {
@@ -259,21 +259,22 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
                 }
 
                 if (citizenData.getSaturation() >= CitizenConstants.FULL_SATURATION) {
-                    ((BuildingCookExtra)building).deleteCustomer(citizen.getCivilianID());
+                    buildingExtra.deleteCustomer(citizen.getCivilianID());
                     break;
                 }
             }
             return getState();
-        } else if (InventoryUtils.hasItemInItemHandler(handler, canEatPredicate)) {
+        }
+
+
+        final int foodSlot = NewFoodUtils.getBestFoodForCitizenWithRestaurantCheck(worker.getInventoryCitizen(), citizenData, module.getMenu(),false);
+        if (foodSlot == -1) {
+            buildingExtra.deleteCustomer(citizen.getCivilianID());
             return getState();
         }
 
-        final int foodSlot = ExtraFoodUtils.getBestFoodForCitizenWithRestaurantCheck(worker.getInventoryCitizen(), citizenData, module.getMenu(),false);
-        if (foodSlot == -1) {
-            if (InventoryUtils.getItemCountInItemHandler(worker.getInventoryCitizen(), canEatPredicate) <= 0) {
-                return getState();
-            }
-            return getState();
+        if (InventoryUtils.hasItemInItemHandler(handler, canEatPredicate)) {
+            buildingExtra.deleteCustomer(citizen.getCivilianID());
         }
 
         if (citizenData.getHomeBuilding() != null && citizenData.getHomeBuilding().getBuildingLevel() > building.getBuildingLevel() + 1) {
@@ -281,9 +282,9 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
         }
 
         Component foodName = worker.getInventoryCitizen().getStackInSlot(foodSlot).getItemName();
-        int qty = (int) (Math.max(1.0, (FULL_SATURATION - citizen.getCitizenData().getSaturation()) / FoodUtils.getFoodValue(worker.getInventoryCitizen().getStackInSlot(foodSlot), citizen)));
+        int qty = (int) (Math.max(1.0, (FULL_SATURATION - citizen.getCitizenData().getSaturation()) / NewFoodUtils.getFoodValue(worker.getInventoryCitizen().getStackInSlot(foodSlot), citizen)));
         if (InventoryUtils.transferXOfItemStackIntoNextFreeSlotInItemHandler(worker.getInventoryCitizen(), foodSlot, qty, citizenData.getInventory())) {
-            ((BuildingCookExtra)building).deleteCustomer(citizen.getCivilianID());
+            buildingExtra.deleteCustomer(citizen.getCivilianID());
             Objects.requireNonNull(worker.getCitizenColonyHandler().getColonyOrRegister()).getStatisticsManager().incrementBy(FOOD_SERVED, qty, worker.getCitizenColonyHandler().getColonyOrRegister().getDay());
             StatsUtil.trackStatByName(building, FOOD_SERVED_DETAIL, foodName, qty);
             worker.getCitizenExperienceHandler().addExperience(BASE_XP_GAIN);
@@ -380,14 +381,14 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
         int menuDiversity = 0;
         for (ItemStorage menuItem : module.getMenu())
         {
-            if(FoodUtils.canEatLevel(menuItem.getItemStack(),building.getBuildingLevel())){
+            if(NewFoodUtils.canEatLevel(menuItem.getItemStack(),building.getBuildingLevel())){
                 menuDiversity ++;
             }
-            if(menuDiversity >= building.getBuildingLevel()){
+            if(menuDiversity >= NewFoodUtils.getMinFoodDiversityRequirement(building)){
                 break;
             }
         }
-        if (menuDiversity < building.getBuildingLevel())
+        if (menuDiversity < NewFoodUtils.getMinFoodDiversityRequirement(building))
         {
             worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(POOR_MENU_INTERACTION), ChatPriority.BLOCKING));
         }
@@ -398,7 +399,7 @@ public class NewEntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Bu
             ICitizenData citizenData = building.getColony().getCitizenManager().getCivilian(customerId);
             if(citizenData.getEntity().isPresent() &&  citizenData.getEntity().get() instanceof EntityCitizen citizen){
                 IState state = citizen.getCitizenAI().getState();
-                if( state != NewEntityAIEatTask.NewEatingState.CHECK_FOOD && state != NewEntityAIEatTask.NewEatingState.GO_TO_RESTAURANT) {
+                if( state != NewEntityAIEat.NewEatingState.CHECK_FOOD && state != NewEntityAIEat.NewEatingState.GO_TO_RESTAURANT) {
                     cookExtra.reached(customerId);
                 }
             }

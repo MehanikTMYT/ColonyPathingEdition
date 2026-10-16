@@ -1,6 +1,6 @@
 package com.arxyt.colonypathingedition.mixins.minecolonies.pathfinding;
 
-import com.arxyt.colonypathingedition.api.IMNodeExtras;
+import com.arxyt.colonypathingedition.api.extras.IMNodeExtra;
 import com.minecolonies.core.entity.pathfinding.MNode;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -8,11 +8,11 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 
 /**
- * 把 IMNodeExtras 接口的方法织入到 MNode，
+ * 把 IMNodeExtra 接口的方法织入到 MNode，
  * 并用 @Unique 字段保存状态。
  */
 @Mixin(value = MNode.class, remap = false)
-@Implements(@Interface(iface = IMNodeExtras.class, prefix = "extra$"))
+@Implements(@Interface(iface = IMNodeExtra.class, prefix = "extra$"))
 public abstract class MNodeMixin
 {
     @Unique private boolean onFarmland;
@@ -22,7 +22,7 @@ public abstract class MNodeMixin
     // 是否是绕路节点
     @Unique private boolean isCallBack;
 
-    // prefix = "extra$"，下面方法会被当作 IMNodeExtras 的实现织入 MNode
+    // prefix = "extra$"，下面方法会被当作 IMNodeExtra 的实现织入 MNode
 
     public boolean extra$getOnFarmland()
     {

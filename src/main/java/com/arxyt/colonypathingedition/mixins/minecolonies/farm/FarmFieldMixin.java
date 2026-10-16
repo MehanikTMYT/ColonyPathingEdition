@@ -1,6 +1,7 @@
 package com.arxyt.colonypathingedition.mixins.minecolonies.farm;
 
-import com.arxyt.colonypathingedition.api.FarmFieldExtra;
+import com.arxyt.colonypathingedition.api.extras.FarmFieldExtra;
+import com.arxyt.colonypathingedition.core.data.tag.ModTag;
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries;
 import com.minecolonies.api.util.Utils;
 import com.minecolonies.core.colony.buildingextensions.AbstractBuildingExtension;
@@ -10,8 +11,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -91,6 +90,10 @@ public abstract class FarmFieldMixin extends AbstractBuildingExtension implement
         return seasonalSeeds.getOrDefault(season, ItemStack.EMPTY);
     }
 
+    public boolean isRotationWithWaterField() {
+        return seasonalSeeds.values().stream().anyMatch(stack -> stack.is(ModTag.SEEDS_UNDERWATER));
+    }
+
     public void updateAdvanceDay(int date, int day, int season){
         this.date = date;
         setCurrentDay(day);
@@ -122,8 +125,6 @@ public abstract class FarmFieldMixin extends AbstractBuildingExtension implement
             seasonLength = seasonDurations.getOrDefault(currentSeason, 0);
         }
     }
-
-    @OnlyIn(Dist.DEDICATED_SERVER)
     @Inject(method = "getSeed",at = @At("HEAD"),remap = false,cancellable = true)
     public void getSeed(CallbackInfoReturnable<ItemStack> cir)
     {

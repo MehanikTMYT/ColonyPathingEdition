@@ -1,6 +1,6 @@
 package com.arxyt.colonypathingedition.mixins.minecolonies.lumberjack;
 
-import com.arxyt.colonypathingedition.api.AbstractEntityAIInteractExtra;
+import com.arxyt.colonypathingedition.api.extras.AbstractEntityAIInteractExtra;
 import com.arxyt.colonypathingedition.api.workersetting.BuildingLumberjackExtra;
 import com.arxyt.colonypathingedition.core.config.PathingConfig;
 import com.arxyt.colonypathingedition.core.util.DistanceUtils;
@@ -298,7 +298,7 @@ public abstract class EntityAIWorkLumberjackMixin extends AbstractEntityAICrafti
 
     @Inject(method = "prepareForWoodcutting", at = @At("RETURN"), remap = false, cancellable = true)
     private void remasterPrepareOrderForWoodcutting(CallbackInfoReturnable<IAIState> cir){
-        if(cir.getReturnValue() == LUMBERJACK_SEARCHING_TREE && (building.shouldRestrict() || lastTree == null || !(DistanceUtils.dist(building.getPosition(),lastTree) > 50))){
+        if(cir.getReturnValue() == LUMBERJACK_SEARCHING_TREE && (building.shouldRestrict() || lastTree == null || !(DistanceUtils.distLightY(building.getPosition(),lastTree) > 50))){
             cir.setReturnValue(LUMBERJACK_GATHERING);
         }
     }

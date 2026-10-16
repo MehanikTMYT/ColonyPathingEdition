@@ -17,11 +17,19 @@ import java.util.Set;
 
 public class PathingConfig {
     public static ModConfigSpec.BooleanValue EATING_AI_MODULE;
+        public static ModConfigSpec.DoubleValue DIVERSITY_REQUIREMENT;
+        public static ModConfigSpec.DoubleValue QUALITY_REQUIREMENT;
+        public static ModConfigSpec.DoubleValue FOOD_NUTRITION_NORMAL;
+        public static ModConfigSpec.DoubleValue FOOD_NUTRITION_MINECOLONIES;
+        public static ModConfigSpec.DoubleValue FOOD_BONUS_NORMAL;
+        public static ModConfigSpec.DoubleValue FOOD_BONUS_MINECOLONIES;
+
     public static ModConfigSpec.BooleanValue SMELTERY_AI_MODULE;
     public static ModConfigSpec.BooleanValue FARMER_AI_MODULE;
     public static ModConfigSpec.BooleanValue FLEE_AI_MODULE;
     public static ModConfigSpec.BooleanValue DELIVERYMAN_AI_MODULE;
     public static ModConfigSpec.BooleanValue PLANTER_AI_MODULE;
+    public static ModConfigSpec.BooleanValue NETHER_WORKER_AI_MODULE;
 
     public static ModConfigSpec.BooleanValue RESTAURANT_EXTRA_WORKER;
     public static ModConfigSpec.BooleanValue KITCHEN_EXTRA_WORKER;
@@ -83,11 +91,13 @@ public class PathingConfig {
     public static ModConfigSpec.EnumValue<BuilderModeEnum> QUARRIER_MODE;
     public static ModConfigSpec.IntValue GIBBON_RANGE;
     public static ModConfigSpec.BooleanValue BUILDER_TAKE_ORDERS_EVERYWHERE;
+    public static ModConfigSpec.BooleanValue ENABLE_DROP_MULTIPLIER;
 
     public static ModConfigSpec.BooleanValue MAX_ANIMAL_MODIFIER;
     public static ModConfigSpec.BooleanValue BUTCHER_INSTANT_KILL;
 
     public static ModConfigSpec.BooleanValue DELIVERY_EAT_AT_WAREHOUSE;
+    public static ModConfigSpec.BooleanValue NEW_WAREHOUSE_ASSIGN_MAX;
     public static ModConfigSpec.BooleanValue USE_MAX_STOCK_FIRST;
     public static ModConfigSpec.BooleanValue PICK_MATERIAL_AT_HUT;
     public static ModConfigSpec.BooleanValue EARLY_ENCHANT;
@@ -100,9 +110,7 @@ public class PathingConfig {
     public static ModConfigSpec.IntValue LEISURE_RATIO;
     public static ModConfigSpec.IntValue MAX_PRE_LEISURE_TIME;
     public static ModConfigSpec.IntValue MAX_BED_PER_LEVEL;
-    public static ModConfigSpec.DoubleValue FOOD_PUNISHER;
-    public static ModConfigSpec.DoubleValue FOOD_BONUS_NORMAL;
-    public static ModConfigSpec.DoubleValue FOOD_BONUS_MINECOLONIES;
+    public static ModConfigSpec.DoubleValue WAREHOUSE_ASSIGN_MULTIPLIER;
     public static ModConfigSpec.ConfigValue<List<? extends String>> GENERAL_FOOD_BLACK_LIST;
 
 
@@ -114,6 +122,34 @@ public class PathingConfig {
         EATING_AI_MODULE = builder
                 .comment("Open the module to use the remastered eating AI system (default: true)\n 开启此模块将会启用重制的市民进食AI (默认开启)")
                 .define("enableNewEatingModule", true);
+            builder.push("Eating Module Details(Eating AI module needed) #进食模块细节调整(需开启进食模块才能生效)");
+            DIVERSITY_REQUIREMENT = builder
+                    .comment("Actual requirement = This Number * HomeBuildingLevel (default: 1)\n 实际需求为 当前数字 * 住宅等级 (默认: 1)")
+                    .defineInRange("diversityRequirement", 1.0, 0.0, 2.0);
+            QUALITY_REQUIREMENT = builder
+                    .comment("Actual requirement = This Number * HomeBuildingLevel (default: 1)\n 实际需求为 当前数字 * 住宅等级 (默认: 1)")
+                    .defineInRange("qualityRequirement", 1.0, 0.0, 2.0);
+            FOOD_NUTRITION_NORMAL = builder
+                    .comment("""
+                                            Nutrition of normal food for citizens (It's a multiplier) (default: 1, original:0.25)
+                                            普通食物营养值 (默认 : 1， 殖民地原设置 : 0.25)""")
+                    .defineInRange("foodNutritionNormal", 1.0, 0.0, 2.0);
+            FOOD_NUTRITION_MINECOLONIES = builder
+                    .comment("""
+                                            Nutrition of minecolonies food for citizens (It's a multiplier) (default: 1, original:1)
+                                            殖民地食物营养值 (默认 : 1， 殖民地原设置 : 1)""")
+                    .defineInRange("foodNutritionMinecolonies", 1.0, 0.0, 2.0);
+            FOOD_BONUS_NORMAL = builder
+                    .comment("""
+                                            Bonus of normal food nutrition for citizens (It's a multiplier on saturation) (default: 0.3)
+                                            普通食物饱和奖励乘数(取决于食物饱和) (默认 : 0.3)""")
+                    .defineInRange("normalFoodBonus", 0.25, 0.0, 2.0);
+            FOOD_BONUS_MINECOLONIES = builder
+                    .comment("""
+                                            Bonus of minecolonies' food nutrition for citizens (It's a multiplier on saturation) (default: 0.5)
+                                            殖民地食物饱和奖励乘数(取决于食物饱和) (默认 : 0.5)""")
+                    .defineInRange("minecoloniesFoodBonus", 0.5, 0.0, 2.0);
+            builder.pop();
         FLEE_AI_MODULE = builder
                 .comment("Open the module to use the remastered flee AI system (default: true)\n 开启此模块将会启用重制的市民逃跑AI (默认开启)")
                 .define("enableNewFleeModule", true);
@@ -129,6 +165,9 @@ public class PathingConfig {
         PLANTER_AI_MODULE = builder
                 .comment("Open the module to use the remastered planter AI system (default: true)\n 开启此模块将会启用重制的种植工AI (默认开启)")
                 .define("enableNewPlanterModule", true);
+        NETHER_WORKER_AI_MODULE = builder
+                .comment("Open the module to use the remastered nether worker AI system (default: true)\n 开启此模块将会启用重制的下界矿工AI (默认开启)")
+                .define("enableNewNetherWorkerModule", true);
         builder.pop();
         builder.push("Extra Worker Opener #额外工人开关#");
         RESTAURANT_EXTRA_WORKER = builder
@@ -323,7 +362,7 @@ public class PathingConfig {
                 .defineInRange("lumberjackGatherWaitingTime",5,2,10);
         builder.pop();
 
-        builder.push("Builder Mode Modifier #土木人修改#");
+        builder.push("Structure Builder Mode Modifier #蓝图建筑相关工人修改#");
         BUILDER_MODE = builder
                 .comment("""
                         Builder mode (default: GIBBON), optional below: 建筑工人模式, (默认: 长臂猿)，可选项如下：
@@ -347,6 +386,9 @@ public class PathingConfig {
                         .defineInRange("builderGibbonRange", 20, 0, 128);
         BUILDER_TAKE_ORDERS_EVERYWHERE = builder.comment("Can builder take orders everywhere. 打灰人能否随时随地接单。")
                         .define("builderTakeOrdersEverywhere", true);
+        ENABLE_DROP_MULTIPLIER = builder
+                .comment("Open this to allow quarriers and miners to drop multiple materials during mining.\n 开启后将允许采石工和矿工挖掘掉落多倍材料(取决于房屋等级)")
+                .define("enableDropMultiplier",true);
         builder.pop();
 
         builder.push("Herder Modifier #养殖户修改#");
@@ -362,6 +404,12 @@ public class PathingConfig {
         DELIVERY_EAT_AT_WAREHOUSE = builder
                 .comment("Open this to enable delivery man eat at warehouse.\n 开启后快递员将会在仓库吃饭")
                 .define("deliveryEatAtWareHouse",true);
+        NEW_WAREHOUSE_ASSIGN_MAX = builder
+                .comment("Open this to allow warehouse to assign 2-6-12-20-30 deliveryman at level 1-5.\n 开启后仓库将在 x 级雇佣 x(x+1) 个快递员")
+                .define("newWareHouseAssignMax",true);
+        WAREHOUSE_ASSIGN_MULTIPLIER = builder
+                .comment("A multiplier on warehouse max assignment.\n 调整这个可以进一步微调仓库每级可以雇佣的人数")
+                .defineInRange("WareHouseAssignMultiplier",1.0 ,0.5, 50.0);
         USE_MAX_STOCK_FIRST = builder
                 .comment("Crafters will use its max stock to craft as default, no need research to unlock.\n 开启后工人会使用库存中余量最多的物品合成，无需点亮对应科技。")
                 .define("crafterUseMaxStockFirst",true);
@@ -376,21 +424,6 @@ public class PathingConfig {
                 .defineInRange("enchantLevelScale", 2, 1, 6);
         MAX_ADDITIONAL_LEVEL_ENCHANT = builder.comment("Sets the maximum addtional worker's hut level enchantment tools.\n 设置附魔工具最多需求小屋增加几级可用。")
                 .defineInRange("maxAdditionalLevelForEnchantTools", 2, 1, 5);
-        FOOD_PUNISHER = builder
-                .comment("""
-                        Punishment of normal food nutrition for citizens (It's a multiplier) (default: 1, original:0.25)
-                        普通食物惩罚乘数 (默认 : 1， 殖民地原设置 : 0.25)""")
-                .defineInRange("foodPunisher", 1.0, 0.0, 1.0);
-        FOOD_BONUS_NORMAL = builder
-                .comment("""
-                        Bonus of normal food nutrition for citizens (It's a multiplier on saturation) (default: 0.2)
-                        普通食物奖励乘数(取决于食物饱和) (默认 : 0.2)""")
-                .defineInRange("normalFoodBonus", 0.2, 0.0, 1.0);
-        FOOD_BONUS_MINECOLONIES = builder
-                .comment("""
-                        Bonus of minecolonies' food nutrition for citizens (It's a multiplier on saturation) (default: 0.5)
-                        殖民地食物奖励乘数(取决于食物饱和) (默认 : 0.5)""")
-                .defineInRange("minecoloniesFoodBonus", 0.5, 0.0, 1.0);
         GENERAL_FOOD_BLACK_LIST = builder
                 .comment("""
                         Write In “Foods" that you don‘t want citizen to eat at colonies.

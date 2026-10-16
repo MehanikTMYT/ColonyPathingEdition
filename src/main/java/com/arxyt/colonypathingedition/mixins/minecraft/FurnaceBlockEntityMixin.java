@@ -1,13 +1,20 @@
 package com.arxyt.colonypathingedition.mixins.minecraft;
 
-import com.arxyt.colonypathingedition.api.FurnaceBlockEntityExtras;
+import com.arxyt.colonypathingedition.api.extras.FurnaceBlockEntityExtra;
 import com.minecolonies.api.util.constant.Constants;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -15,12 +22,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+
 @Mixin(AbstractFurnaceBlockEntity.class)
-public abstract class FurnaceBlockEntityMixin implements FurnaceBlockEntityExtras {
+public abstract class FurnaceBlockEntityMixin implements FurnaceBlockEntityExtra {
+    @Final @Shadow private Reference2IntOpenHashMap<ResourceKey<Recipe<?>>> recipesUsed;
     @Shadow int litTimeRemaining;
     @Shadow int cookingTimer;
     @Shadow int cookingTotalTime;
     @Shadow int litTotalTime;
+
+    @Shadow public abstract List<RecipeHolder<?>> getRecipesToAwardAndPopExperience(ServerLevel level, Vec3 popVec);
 
     @Unique private int pathFindEdition$workerID = -1;
     @Unique private int pathFindEdition$pickerID = -1;
@@ -127,6 +139,13 @@ public abstract class FurnaceBlockEntityMixin implements FurnaceBlockEntityExtra
         return pathFindEdition$protectTime > 0;
     }
 
+    @Unique
+    public void pathFindEdition$clearUsedRecipesAndPopExperience(ServerLevel world, Entity worker) {
+        if(world == null) return;
+        this.getRecipesToAwardAndPopExperience(world, worker.position());
+        this.recipesUsed.clear();
+    }
+
     @Inject(method = "saveAdditional", at = @At("RETURN"))
     private void onSave(ValueOutput output, CallbackInfo ci) {
         output.putInt("WorkerID", pathFindEdition$workerID);
@@ -141,11 +160,11 @@ public abstract class FurnaceBlockEntityMixin implements FurnaceBlockEntityExtra
 
     @Inject(method = "serverTick", at = @At("RETURN"))
     private static void afterServerTick(ServerLevel pLevel, BlockPos pPos, BlockState pState, AbstractFurnaceBlockEntity pBlockEntity, CallbackInfo ci){
-        ((FurnaceBlockEntityExtras)pBlockEntity).pathFindEdition$tickProtect();
+        ((FurnaceBlockEntityExtra)pBlockEntity).pathFindEdition$tickProtect();
     }
 
     @Inject(method = "serverTick", at = @At("HEAD"))
     private static void beforeServerTick(ServerLevel pLevel, BlockPos pPos, BlockState pState, AbstractFurnaceBlockEntity pBlockEntity, CallbackInfo ci){
-        ((FurnaceBlockEntityExtras)pBlockEntity).pathFindEdition$setPickup(pBlockEntity);
+        ((FurnaceBlockEntityExtra)pBlockEntity).pathFindEdition$setPickup(pBlockEntity);
     }
 }

@@ -8,10 +8,11 @@ import java.lang.reflect.Method;
 public class LinkageManager {
 
     public static boolean useJEAMatch = false;
+    public static boolean useCompatibilityAddon = false;
 
     public static Method match;
 
-    public static void setup() {
+    public static void setupJEAMath() {
         useJEAMatch = true;
         try {
             Class<?> clazz = Class.forName("me.towdium.jecharacters.utils.Match");
@@ -19,6 +20,10 @@ public class LinkageManager {
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             useJEAMatch = false;
         }
+    }
+
+    public static void setupCompatibilityAddon() {
+        useCompatibilityAddon = true;
     }
 
     public static boolean invokeMatch(String s, CharSequence cs) {

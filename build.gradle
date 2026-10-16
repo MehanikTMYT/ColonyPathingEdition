@@ -32,6 +32,14 @@ repositories {
         name = "ParchmentMC"
         url = "https://maven.parchmentmc.org"
     }
+    maven {
+        name "LocalMaven"
+        url uri("${projectDir}/libs")
+    }
+    flatDir {
+        name "LocalFlatDir"
+        dir "${projectDir}/libs"
+    }
 }
 
 base {
@@ -124,6 +132,10 @@ dependencies {
 
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
+    // fleet 26.1.2: no 26.1 build of this addon yet (compat code is stubbed)
+    //     compileOnly "blank:MineColonies_Tweaks-1.21.1:libs"
+    // fleet 26.1.2: no 26.1 build of this addon yet (compat code is stubbed)
+    //     compileOnly "blank:MineColonies_Compatibility-1.21.1:libs"
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
     // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
     // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
