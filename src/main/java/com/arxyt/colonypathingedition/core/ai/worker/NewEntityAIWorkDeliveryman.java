@@ -1,5 +1,8 @@
 package com.arxyt.colonypathingedition.core.ai.worker;
 
+import steve_gall.minecolonies_compatibility.core.common.init.ModBuildingModules;
+import steve_gall.minecolonies_compatibility.api.common.building.module.INetworkStorageView;
+import steve_gall.minecolonies_compatibility.core.common.building.module.NetworkStorageModule;
 import com.arxyt.colonypathingedition.core.job.NewJobDeliveryman;
 import com.arxyt.colonypathingedition.core.manager.LinkageManager;
 import com.arxyt.colonypathingedition.core.util.DistanceUtils;
@@ -764,68 +767,41 @@ public class NewEntityAIWorkDeliveryman extends AbstractEntityAIInteract<NewJobD
     }
 
     /**
-     * Add more available tile entities here.
-     */
-    /**
-     * Upstream (CPE ALPHA-13.1, Minecraft 1.21.1) routes this through the optional
-     * "minecolonies_compatibility" addon (steve_gall.minecolonies_compatibility.*, its
-     * NetworkStorageModule / INetworkStorageView / ModBuildingModules API).
-     *
-     * That addon has NO Minecraft 26.1.2 port anywhere in this fork fleet: its upstream
-     * (gisellevonbingen-Minecraft/MineColonies_Compatibility) only publishes 1.19.2 / 1.20.1 /
-     * 1.21.1 branches, and no 26.1.2 artifact exists to compile or run against. Upstream supplies
-     * it as a local flatDir compileOnly jar (libs/MineColonies_Compatibility-1.21.1) which is not
-     * present here and would not link against 26.1.2 anyway.
-     *
-     * Porting it is therefore BLOCKED on that dependency, not on this code. The runtime gate
-     * (LinkageManager.useCompatibilityAddon) can never be true in a 26.1.2 pack, so returning
-     * false is behaviourally identical to upstream for every configuration we can actually build.
-     * Leaving the original calls in place would only add a NoClassDefFoundError hazard.
-     *
-     * The upstream implementation is preserved verbatim below so a future round can restore it
-     * unchanged once MineColonies_Compatibility is ported to 26.1.2.
+     * Add more available tile entities here (network storage of the optional MineColonies Compatibility addon).
+     * fleet 26.1.2: restored from upstream now that MineColonies_Compatibility has a 26.1.2 port.
      */
     public boolean gatherAdditionalTileEntities(final BlockEntity entity, final ItemStack is)
     {
+        if (LinkageManager.useCompatibilityAddon) {
+            if (entity == null) {
+                return false;
+            }
+            IWareHouse warehouse = job.getWareHouseWorkingFor();
+            if (warehouse == null) {
+                return false;
+            }
+            NetworkStorageModule module = warehouse.getModule(ModBuildingModules.NETWORK_STORAGE);
+            if (module == null || entity.getLevel() == null) {
+                return false;
+            }
+            INetworkStorageView view = NetworkStorageModule.getAllViews(entity.getLevel(), entity.getBlockPos(), (v) -> v.getLinkedModule() != null && NetworkStorageModule.canExtract(v)).findAny().orElse(null);
+            if (view == null) {
+                return false;
+            }
+
+            InventoryCitizen inventory = this.worker.getInventoryCitizen();
+            ItemStack extracting = view.extractItem(is, true);
+            if (!extracting.isEmpty()) {
+                ItemStack remain = ItemHandlerHelper.insertItem(inventory, extracting, true);
+                if (remain.isEmpty()) {
+                    ItemStack extracted = view.extractItem(is, false).copy();
+                    ItemHandlerHelper.insertItem(inventory, extracted, false);
+                    return true;
+                }
+            }
+        }
         return false;
     }
-
-    // ---------------------------------------------------------------------------------------
-    // PRESERVED UPSTREAM (CPE ALPHA-13.1 / MC 1.21.1) IMPLEMENTATION - see javadoc above.
-    // Restore verbatim once steve_gall.minecolonies_compatibility exists for 26.1.2.
-    // ---------------------------------------------------------------------------------------
-    //     public boolean gatherAdditionalTileEntities(final BlockEntity entity, final ItemStack is)
-    //     {
-    //         if (LinkageManager.useCompatibilityAddon) {
-    //             if (entity == null) {
-    //                 return false;
-    //             }
-    //             IWareHouse warehouse = job.getWareHouseWorkingFor();
-    //             if (warehouse == null) {
-    //                 return false;
-    //             }
-    //             NetworkStorageModule module = warehouse.getModule(ModBuildingModules.NETWORK_STORAGE);
-    //             if (module == null || entity.getLevel() == null) {
-    //                 return false;
-    //             }
-    //             INetworkStorageView view = NetworkStorageModule.getAllViews(entity.getLevel(), entity.getBlockPos(), (v) -> v.getLinkedModule() != null && NetworkStorageModule.canExtract(v)).findAny().orElse(null);
-    //             if (view == null) {
-    //                 return false;
-    //             }
-    //
-    //             InventoryCitizen inventory = this.worker.getInventoryCitizen();
-    //             ItemStack extracting = view.extractItem(is, true);
-    //             if (!extracting.isEmpty()) {
-    //                 ItemStack remain = ItemHandlerHelper.insertItem(inventory, extracting, true);
-    //                 if (remain.isEmpty()) {
-    //                     ItemStack extracted = view.extractItem(is, false).copy();
-    //                     ItemHandlerHelper.insertItem(inventory, extracted, false);
-    //                     return true;
-    //                 }
-    //             }
-    //         }
-    //         return false;
-    //     }
 
     /**
      * Check the wareHouse for the next task.
