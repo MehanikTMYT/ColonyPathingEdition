@@ -209,5 +209,20 @@
   "com.arxyt.colonypathingedition.core.eating.foodquality.urgent": "Как еда в столовой может насыщать, но совсем не радовать? Если так пойдёт дальше, я от такой кормёжки скоро позеленею...",
   "com.arxyt.colonypathingedition.core.actions.mining.alert": "Я не могу добыть блок своим инструментом! Целевой блок: ",
   "com.minecolonies.coremod.gui.townhall.stats.escaped": "Удачно сбежали: %d",
-  "com.minecolonies.coremod.gui.townhall.stats.extraRounds": "Дополнительные вылазки: %d"
+  "com.minecolonies.coremod.gui.townhall.stats.extraRounds": "Дополнительные вылазки: %d",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.hurt.direction0": "Я в %d м к северо-западу от вас!",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.hurt.direction1": "Я в %d м к западу от вас!",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.hurt.direction2": "Я в %d м к юго-западу от вас!",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.hurt.direction3": "Я в %d м к северу от вас!",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.hurt.direction5": "Я в %d м к югу от вас!",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.hurt.direction6": "Я в %d м к северо-востоку от вас!",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.hurt.direction7": "Я в %d м к востоку от вас!",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.hurt.direction8": "Я в %d м к юго-востоку от вас!",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.read_mind.state.FIND_FOOD_TO_EAT": "ИЩЕТ_ЕДУ",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.read_mind.state.FORCE_EATING": "СИЛОВАЯ_ЕДА",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.read_mind.state.GO_TO_PLACE_WITH_FOOD": "ИДЁТ_К_ЕДЕ",
+  "com.arxyt.colonypathingedition.core.easycolony.colony.read_mind.state.NETHER_GATHER_TOOLS": "СБОР_ИНСТРУМЕНТОВ_В_НИЖНЕМ_МИРЕ",
+  "com.arxyt.colonypathingedition.core.warehouse_menu": "Меню склада",
+  "com.arxyt.colonypathingedition.core.warehouse_menu.title": "Меню склада",
+  "com.arxyt.colonypathingedition.core.warehouse_menu.warning": "Выберите еду, которую граждане могут есть со склада"
 }
